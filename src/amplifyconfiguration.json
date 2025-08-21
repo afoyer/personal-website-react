@@ -1,0 +1,16 @@
+{
+  "aws_project_region": "us-east-2",
+  "aws_cognito_region": "us-east-2",
+  "aws_user_pools_id": "us-east-2_IhAtO3Pxa",
+  "aws_user_pools_web_client_id": "3codroubkcgfslrfsifeug4vi2",
+  "oauth": {
+    "domain": "your-domain.auth.us-east-2.amazoncognito.com",
+    "scope": ["email", "openid", "profile"],
+    "redirectSignIn": "http://localhost:5173/",
+    "redirectSignOut": "http://localhost:5173/",
+    "responseType": "code"
+  },
+  "aws_appsync_graphqlEndpoint": "https://x53tbvmasvbixi5qzgro3el2li.appsync-api.us-east-2.amazonaws.com/graphql",
+  "aws_appsync_region": "us-east-2",
+  "aws_appsync_authenticationType": "AMAZON_COGNITO_USER_POOLS"
+}
