@@ -1,13 +1,13 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Amplify } from 'aws-amplify';
-import config from './amplifyconfiguration.json';
-import App from './App.tsx';
-import './index.css';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Amplify } from "aws-amplify";
+import outputs from "../amplify_outputs.json";
+import App from "./App.tsx";
+import "./index.css";
 
 // Configure Amplify
-Amplify.configure(config);
+Amplify.configure(outputs);
 
 // Create a client
 const queryClient = new QueryClient({
@@ -19,7 +19,7 @@ const queryClient = new QueryClient({
   },
 });
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
+ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <App />

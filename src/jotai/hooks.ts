@@ -1,12 +1,10 @@
-import { useAtom, useAtomValue } from 'jotai';
-import type { Atom } from 'jotai';
+import { useAtom, useAtomValue } from "jotai";
+import type { Atom } from "jotai";
 
 // Import atoms for the hooks
 import {
   themeAtom,
   globalCountAtom,
-  isLoadingAtom,
-  sidebarOpenAtom,
   currentUserAtom,
   isAuthenticatedAtom,
   userLoadingAtom,
@@ -24,7 +22,7 @@ import {
   addNotificationAtom,
   removeNotificationAtom,
   clearAllNotificationsAtom,
-} from './atoms';
+} from "./atoms";
 
 // Custom hook for write-only atoms (actions)
 export function useSetAtom<T>(atom: Atom<T>) {

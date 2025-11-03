@@ -54,6 +54,9 @@ jspm_packages/
 .env.test
 .env.local
 .env.production
+.amplify/
+amplify_outputs.json
+amplifyconfiguration.json
 
 # parcel-bundler cache
 .cache

@@ -1,35 +1,30 @@
-import React from "react";
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   Navigate,
 } from "react-router-dom";
-import "./App.css";
 
 // Components
-import Navigation from "./components/navigation";
 import Home from "./pages/Home";
-import About from "./pages/About";
 import Profile from "./pages/Profile";
-import DaySelector from "./components/DaySelector";
+import { AnimatePresence } from "motion/react";
 
 function App() {
   return (
-    <Router>
-      <div className="app flex flex-col min-h-screen">
-        <Navigation />
-        <main className="main-content flex-1 relative">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-          <DaySelector />
-        </main>
-      </div>
-    </Router>
+    <AnimatePresence>
+      <Router>
+        <div className="min-h-screen font-sans ">
+          <main className="flexbox-border px-[64px] w-full">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </main>
+        </div>
+      </Router>
+    </AnimatePresence>
   );
 }
 
