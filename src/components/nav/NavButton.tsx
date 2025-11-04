@@ -21,7 +21,7 @@ export default function NavButton({
   backgroundColor = "rgba(0, 0, 0, 0.1)",
   popoverContent,
   popoverPosition = "top",
-  delay = 0.4,
+  delay = 0.1,
   className = "",
 }: NavButtonProps) {
   const [showPopover, setShowPopover] = useState(false);
@@ -126,7 +126,7 @@ export default function NavButton({
         }}
         whileTap={{ scale: 0.95 }}
         initial={{ opacity: 0 }}
-        transition={{ duration: 0.2, delay }}
+        transition={{ duration: 0.1, delay }}
         onMouseEnter={() => setShowPopover(true)}
         onMouseLeave={() => setShowPopover(false)}
       >

@@ -1,6 +1,8 @@
 import { motion, useMotionValue, useSpring } from "motion/react";
 import { FileText, Images, List, Music } from "lucide-react";
 import { RefObject, useState } from "react";
+import { useAtom } from "jotai";
+import { toggleThemeAtom } from "../../jotai/atoms/appAtoms";
 
 import "./nav.css";
 import NavButton from "./NavButton";
@@ -19,6 +21,7 @@ export default function Nav({
   onSpotifyClick,
 }: NavProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const [, toggleTheme] = useAtom(toggleThemeAtom);
 
   // Track mouse position
   const mouseX = useMotionValue(0);
@@ -38,20 +41,20 @@ export default function Nav({
 
   return (
     <motion.div
-      className="relative"
-      style={{ position: "absolute" }}
+      className="relative center-x"
+      style={{
+        position: "absolute",
+        top: 0,
+      }}
       initial={{
         opacity: 1,
-        top: isAllClosed ? "50%" : "auto",
-        bottom: isAllClosed ? "auto" : 16,
-        y: isAllClosed ? "-50%" : 0,
+        y: "calc(50vh - 50%)",
+        scale: 1.5,
       }}
       animate={{
         opacity: 1,
         scale: isAllClosed ? 1.5 : 1,
-        top: isAllClosed ? "50%" : "auto",
-        bottom: isAllClosed ? "auto" : 16,
-        y: isAllClosed ? "-50%" : 0,
+        y: isAllClosed ? "calc(50vh - 50%)" : "calc(100vh - 66px)",
       }}
       transition={{ duration: 0.4, ease: [0.1, 1, 0.3, 1] }}
       onHoverStart={() => setIsHovered(true)}
@@ -88,7 +91,7 @@ export default function Nav({
         <NavButton
           buttonRef={buttonRef}
           onClick={onGalleryClick}
-          hoverBackgroundColor="rgba(120, 144, 156, 1)"
+          hoverBackgroundColor="rgba(120, 144, 156, 0.6)"
           popoverContent="Resume"
           popoverPosition="top"
         >
@@ -97,7 +100,7 @@ export default function Nav({
         <NavButton
           buttonRef={buttonRef}
           onClick={onSpotifyClick}
-          hoverBackgroundColor="rgba(0, 225, 0, 1)"
+          hoverBackgroundColor="rgba(0, 225, 0, 0.6)"
           popoverContent="Spotify"
           popoverPosition="top"
         >
@@ -107,10 +110,11 @@ export default function Nav({
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="text-white/95 m-auto relative z-10"
+          className="text-white/95 m-auto relative z-10 cursor-pointer"
           style={{ height: "1.125rem", width: "auto" }}
           viewBox="0 0 259.57 158.05"
           fill="currentColor"
+          onClick={() => toggleTheme()}
         >
           <polyline points="104.42 1.11 259.57 0 225.92 29.63 136.84 29.63 136.84 69.13 179.84 69.13 157.06 98.77 137.1 98.77 137.1 157.19 104.42 157.19" />
           <path
@@ -122,7 +126,7 @@ export default function Nav({
         <NavButton
           buttonRef={buttonRef}
           onClick={onGalleryClick}
-          hoverBackgroundColor="rgba(0, 0, 255, 1)"
+          hoverBackgroundColor="rgba(0, 0, 255, 0.6)"
           popoverContent="Photo Gallery"
           popoverPosition="top"
         >
@@ -131,7 +135,7 @@ export default function Nav({
         <NavButton
           buttonRef={buttonRef}
           onClick={onGalleryClick}
-          hoverBackgroundColor="rgba(0, 0, 255, 1)"
+          hoverBackgroundColor="rgba(0, 0, 255, 0.6)"
           popoverContent="Projects"
           popoverPosition="top"
         >

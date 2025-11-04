@@ -1,7 +1,8 @@
 import { atom } from 'jotai';
+import { atomWithStorage } from 'jotai/utils';
 
-// App state atoms
-export const themeAtom = atom<'light' | 'dark'>('light');
+// App state atoms with persistence
+export const themeAtom = atomWithStorage<'light' | 'dark'>('theme', 'light');
 export const globalCountAtom = atom(0);
 export const isLoadingAtom = atom(false);
 export const sidebarOpenAtom = atom(false);
@@ -25,7 +26,7 @@ export const decrementGlobalCountAtom = atom(null, (get, set) => {
   set(globalCountAtom, currentCount - 1);
 });
 
-export const resetGlobalCountAtom = atom(null, (get, set) => {
+export const resetGlobalCountAtom = atom(null, (_get, set) => {
   set(globalCountAtom, 0);
 });
 

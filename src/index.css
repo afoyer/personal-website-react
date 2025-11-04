@@ -8,3 +8,10 @@
     /* background-attachment: fixed; */
   }
 }
+
+/* Dark mode styles */
+@layer utilities {
+  .dark {
+    color-scheme: dark;
+  }
+}
