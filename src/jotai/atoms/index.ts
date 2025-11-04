@@ -1,8 +1,11 @@
 // App atoms
-export * from './appAtoms';
+export * from "./appAtoms";
 
 // User atoms
-export * from './userAtoms';
+export * from "./userAtoms";
 
 // Notification atoms
-export * from './notificationAtoms';
+export * from "./notificationAtoms";
+
+// Playback atoms
+export * from "./playbackAtoms";

@@ -8,6 +8,8 @@ import {
 // Components
 import Home from "./pages/Home";
 import Profile from "./pages/Profile";
+import SpotifyCallback from "./pages/SpotifyCallback";
+import PlaybackToastContainer from "./components/spotify-player/PlaybackToastContainer";
 import { AnimatePresence } from "motion/react";
 
 function App() {
@@ -19,9 +21,11 @@ function App() {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/spotify-callback" element={<SpotifyCallback />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </main>
+          <PlaybackToastContainer />
         </div>
       </Router>
     </AnimatePresence>
