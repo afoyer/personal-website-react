@@ -182,10 +182,11 @@ export default function DraggableWindow({
   const style = isFullscreen
     ? ({
         position: "fixed" as const,
-        left: 0,
-        top: 0,
-        width: "100vw",
-        height: "100vh",
+        width: "calc(100vw - 64px)",
+        height: "calc(100vh - 64px)",
+        borderRadius: "16px",
+        left: "32px",
+        top: "16px",
         zIndex: zIndex,
         transformOrigin: "center",
       } as React.CSSProperties)
@@ -241,9 +242,9 @@ export default function DraggableWindow({
         onFocus();
       }
     },
-    className: `pointer-events-auto bg-white/95 backdrop-blur-sm shadow-2xl ${
+    className: `pointer-events-auto bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm shadow-2xl ${
       isFullscreen ? "" : "rounded-lg"
-    } border border-gray-200 flex flex-col overflow-hidden ${className}`,
+    } border border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden ${className}`,
   };
 
   const content = (
@@ -288,9 +289,11 @@ export default function DraggableWindow({
 
       {/* Window Title Bar - Drag Handle */}
       <div
-        className={`flex items-center justify-between px-4 py-3 bg-gray-100/80 border-b border-gray-200 select-none transition-colors ${
-          isDragging ? "bg-gray-200/80" : ""
-        }`}
+        className={`flex items-center justify-between px-4 py-3 bg-gray-100/80 border-b border-gray-200 select-none transition-colors
+          ${isDragging ? "bg-gray-200/80" : ""}
+          dark:bg-gray-900/80 dark:border-gray-700
+          ${isDragging ? "dark:bg-gray-800/80" : ""}
+        `}
       >
         <div
           {...(!isFullscreen && !resizeState?.isResizing
@@ -307,8 +310,12 @@ export default function DraggableWindow({
               : ""
           }`}
         >
-          {!isFullscreen && <GripVertical className="w-5 h-5 text-gray-400" />}
-          <h3 className="font-semibold text-gray-800 text-sm">{title}</h3>
+          {!isFullscreen && (
+            <GripVertical className="w-5 h-5 text-gray-400 dark:text-gray-500" />
+          )}
+          <h3 className="font-semibold text-gray-800 dark:text-gray-100 text-sm">
+            {title}
+          </h3>
         </div>
         {onClose && (
           <button
@@ -316,10 +323,10 @@ export default function DraggableWindow({
               e.stopPropagation();
               onClose();
             }}
-            className="p-1 hover:bg-gray-200 rounded transition-colors cursor-pointer"
+            className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors cursor-pointer"
             aria-label="Close"
           >
-            <X className="w-4 h-4 text-gray-600" />
+            <X className="w-4 h-4 text-gray-600 dark:text-gray-400" />
           </button>
         )}
       </div>

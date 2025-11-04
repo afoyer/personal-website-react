@@ -1,11 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import DraggableWindow, {
   DraggableWindowProps,
-} from "../../../components/draggable-window";
+} from "../../components/draggable-window";
 import { getUrl } from "aws-amplify/storage";
-import Spinner from "../../../components/spinner";
+import Spinner from "../../components/spinner";
 
-function Projects(
+function Resume(
   props: DraggableWindowProps & {
     originPosition?: { x: number; y: number } | null;
   }
@@ -17,8 +17,8 @@ function Projects(
   return (
     <DraggableWindow
       {...props}
-      title="Projects"
-      id="projects-window"
+      title="Resume"
+      id="resume-window"
       variant="fullscreen"
       initial={{
         opacity: 0,
@@ -27,12 +27,12 @@ function Projects(
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.8 }}
     >
-      <ProjectsContent />
+      <ResumeContent />
     </DraggableWindow>
   );
 }
 
-function ProjectsContent() {
+function ResumeContent() {
   const {
     data: resumeUrl,
     isLoading: loadingResume,
@@ -51,7 +51,7 @@ function ProjectsContent() {
   } else if (resumeError) {
     return <div>Error loading resume {resumeError.message}</div>;
   } else {
-    return <iframe src={resumeUrl} width="100%" height="100%" />;
+    return <iframe src={resumeUrl + "#toolbar=0"} width="100%" height="100%" />;
   }
   return (
     <div>
@@ -60,4 +60,4 @@ function ProjectsContent() {
   );
 }
 
-export default Projects;
+export default Resume;

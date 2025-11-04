@@ -7,12 +7,12 @@ import FlickrGallery from "../windows/flickr-gallery";
 import Alert from "../components/alert";
 import Nav from "../components/nav";
 import SpotifyNowPlaying from "../components/spotify-window";
-import Projects from "../windows/flickr-gallery/projects";
+import Resume from "../windows/resume";
 
 export type WindowKey =
   | "flickr-gallery-window"
   | "spotify-player-window"
-  | "projects-window"
+  | "resume-window"
   | "resume-window";
 
 function Home() {
@@ -33,14 +33,14 @@ function Home() {
     }),
     []
   );
-  const projectsFinalPosition = useMemo(
+  const resumeFinalPosition = useMemo(
     () => ({
       x: 16,
       y: 48,
     }),
     []
   );
-  const resumeFinalPosition = useMemo(
+  const projectsFinalPosition = useMemo(
     () => ({
       x: 16,
       y: 64,
@@ -53,8 +53,8 @@ function Home() {
     useDraggableWindows({
       "flickr-gallery-window": flickrFinalPosition,
       "spotify-player-window": spotifyFinalPosition,
-      "projects-window": projectsFinalPosition,
       "resume-window": resumeFinalPosition,
+      "projects-window": resumeFinalPosition,
     });
 
   // Get Flickr gallery state from atoms
@@ -65,8 +65,8 @@ function Home() {
     useWindowAnimations({
       "flickr-gallery-window": { finalPosition: flickrFinalPosition },
       "spotify-player-window": { finalPosition: spotifyFinalPosition },
-      "projects-window": { finalPosition: projectsFinalPosition },
       "resume-window": { finalPosition: resumeFinalPosition },
+      "projects-window": { finalPosition: resumeFinalPosition },
     });
 
   // Extract window states for easier access
@@ -80,13 +80,13 @@ function Home() {
     originPosition: null,
     currentPosition: spotifyFinalPosition,
   };
-  const projectsWindow = windows["projects-window"] || {
+  const resumeWindow = windows["resume-window"] || {
     isOpen: false,
     originPosition: null,
-    currentPosition: projectsFinalPosition,
+    currentPosition: resumeFinalPosition,
   };
   const isAllClosed =
-    !flickrWindow.isOpen && !spotifyWindow.isOpen && !projectsWindow.isOpen;
+    !flickrWindow.isOpen && !spotifyWindow.isOpen && !resumeWindow.isOpen;
 
   const openWindowByKey = (window: WindowKey) => {
     openWindow(window, buttonRef);
@@ -153,14 +153,14 @@ function Home() {
           </Alert>
         )}
 
-        {/* Render Projects window */}
-        {projectsWindow.isOpen && (
-          <Projects
-            position={projectsWindow.currentPosition}
-            zIndex={getWindowZIndex("projects-window")}
-            onFocus={() => bringWindowToFront("projects-window")}
-            onClose={() => closeWindow("projects-window")}
-            originPosition={projectsWindow.originPosition}
+        {/* Render resume window */}
+        {resumeWindow.isOpen && (
+          <Resume
+            position={resumeWindow.currentPosition}
+            zIndex={getWindowZIndex("resume-window")}
+            onFocus={() => bringWindowToFront("resume-window")}
+            onClose={() => closeWindow("resume-window")}
+            originPosition={resumeWindow.originPosition}
           />
         )}
       </div>

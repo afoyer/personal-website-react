@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@variant dark (.dark &);
+
 /* Using system fonts - no external imports needed */
 @layer base {
   body {
