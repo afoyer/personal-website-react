@@ -8,6 +8,12 @@ import Alert from "../components/alert";
 import Nav from "../components/nav";
 import SpotifyNowPlaying from "../components/spotify-window";
 
+export type WindowKey =
+  | "flickr-gallery-window"
+  | "spotify-player-window"
+  | "projects-window"
+  | "resume-window";
+
 function Home() {
   const buttonRef = useRef<HTMLButtonElement>(null);
 
@@ -26,12 +32,28 @@ function Home() {
     }),
     []
   );
+  const projectsFinalPosition = useMemo(
+    () => ({
+      x: 16,
+      y: 48,
+    }),
+    []
+  );
+  const resumeFinalPosition = useMemo(
+    () => ({
+      x: 16,
+      y: 64,
+    }),
+    []
+  );
 
   // Manage draggable window positions and z-indices
   const { handleDragEnd, bringWindowToFront, getWindowZIndex } =
     useDraggableWindows({
       "flickr-gallery-window": flickrFinalPosition,
       "spotify-player-window": spotifyFinalPosition,
+      "projects-window": projectsFinalPosition,
+      "resume-window": resumeFinalPosition,
     });
 
   // Get Flickr gallery state from atoms
@@ -42,6 +64,8 @@ function Home() {
     useWindowAnimations({
       "flickr-gallery-window": { finalPosition: flickrFinalPosition },
       "spotify-player-window": { finalPosition: spotifyFinalPosition },
+      "projects-window": { finalPosition: projectsFinalPosition },
+      "resume-window": { finalPosition: resumeFinalPosition },
     });
 
   // Extract window states for easier access
@@ -56,15 +80,9 @@ function Home() {
     currentPosition: spotifyFinalPosition,
   };
   const isAllClosed = !flickrWindow.isOpen && !spotifyWindow.isOpen;
-
-  const handleOpenGallery = () => {
-    openWindow("flickr-gallery-window", buttonRef);
-    bringWindowToFront("flickr-gallery-window");
-  };
-
-  const handleOpenSpotify = () => {
-    openWindow("spotify-player-window", buttonRef);
-    bringWindowToFront("spotify-player-window");
+  const openWindowByKey = (window: WindowKey) => {
+    openWindow(window, buttonRef);
+    bringWindowToFront(window);
   };
 
   // Custom drag end handler that updates both systems
@@ -95,8 +113,7 @@ function Home() {
       >
         <Nav
           buttonRef={buttonRef}
-          onGalleryClick={handleOpenGallery}
-          onSpotifyClick={handleOpenSpotify}
+          openWindow={openWindowByKey}
           isAllClosed={isAllClosed}
         />
         {/* Render gallery only when open */}

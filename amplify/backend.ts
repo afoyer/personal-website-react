@@ -3,7 +3,7 @@ import { auth } from "./auth/resource";
 import { data } from "./data/resource";
 import { flickrApi } from "./functions/flickr-api/resource";
 import { spotifyApi } from "./functions/spotify-api/resource";
-
+import { storage } from "./storage/resource";
 /**
  * @see https://docs.amplify.aws/react/build-a-backend/ to add storage, functions, and more
  */
@@ -12,4 +12,5 @@ defineBackend({
   data,
   flickrApi,
   spotifyApi,
+  storage,
 });

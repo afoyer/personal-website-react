@@ -6,20 +6,15 @@ import { toggleThemeAtom } from "../../jotai/atoms/appAtoms";
 
 import "./nav.css";
 import NavButton from "./NavButton";
+import { WindowKey } from "../../pages/Home";
 
 interface NavProps {
   buttonRef?: RefObject<HTMLButtonElement | null>;
-  onGalleryClick: () => void;
+  openWindow: (window: WindowKey) => void;
   isAllClosed: boolean;
-  onSpotifyClick: () => void;
 }
 
-export default function Nav({
-  buttonRef,
-  onGalleryClick,
-  isAllClosed,
-  onSpotifyClick,
-}: NavProps) {
+export default function Nav({ buttonRef, isAllClosed, openWindow }: NavProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [, toggleTheme] = useAtom(toggleThemeAtom);
 
@@ -90,7 +85,7 @@ export default function Nav({
       <div className="nav-container flex items-center gap-4 justify-center max-w-2xl mx-auto bg-black/30 backdrop-blur-sm rounded-4xl p-2 border border-white/10 pointer-events-auto center-x h-[50px]">
         <NavButton
           buttonRef={buttonRef}
-          onClick={onGalleryClick}
+          onClick={() => openWindow("resume-window")}
           hoverBackgroundColor="rgba(120, 144, 156, 0.6)"
           popoverContent="Resume"
           popoverPosition="top"
@@ -99,7 +94,7 @@ export default function Nav({
         </NavButton>
         <NavButton
           buttonRef={buttonRef}
-          onClick={onSpotifyClick}
+          onClick={() => openWindow("spotify-player-window")}
           hoverBackgroundColor="rgba(0, 225, 0, 0.6)"
           popoverContent="Spotify"
           popoverPosition="top"
@@ -125,7 +120,7 @@ export default function Nav({
         </motion.svg>
         <NavButton
           buttonRef={buttonRef}
-          onClick={onGalleryClick}
+          onClick={() => openWindow("flickr-gallery-window")}
           hoverBackgroundColor="rgba(0, 0, 255, 0.6)"
           popoverContent="Photo Gallery"
           popoverPosition="top"
@@ -134,8 +129,8 @@ export default function Nav({
         </NavButton>
         <NavButton
           buttonRef={buttonRef}
-          onClick={onGalleryClick}
-          hoverBackgroundColor="rgba(0, 0, 255, 0.6)"
+          onClick={() => openWindow("projects-window")}
+          hoverBackgroundColor="rgba(251, 192, 45, 0.6)"
           popoverContent="Projects"
           popoverPosition="top"
         >
