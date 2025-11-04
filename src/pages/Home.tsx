@@ -3,10 +3,11 @@ import { useRef, useMemo, useCallback } from "react";
 import { useDraggableWindows } from "../hooks/useDraggableWindows";
 import { useFlickrGallery } from "../jotai/hooks";
 import { useWindowAnimations } from "../hooks/useWindowAnimation";
-import FlickrGallery from "../components/flickr-gallery";
+import FlickrGallery from "../windows/flickr-gallery";
 import Alert from "../components/alert";
 import Nav from "../components/nav";
 import SpotifyNowPlaying from "../components/spotify-window";
+import Projects from "../windows/flickr-gallery/projects";
 
 export type WindowKey =
   | "flickr-gallery-window"
@@ -79,7 +80,14 @@ function Home() {
     originPosition: null,
     currentPosition: spotifyFinalPosition,
   };
-  const isAllClosed = !flickrWindow.isOpen && !spotifyWindow.isOpen;
+  const projectsWindow = windows["projects-window"] || {
+    isOpen: false,
+    originPosition: null,
+    currentPosition: projectsFinalPosition,
+  };
+  const isAllClosed =
+    !flickrWindow.isOpen && !spotifyWindow.isOpen && !projectsWindow.isOpen;
+
   const openWindowByKey = (window: WindowKey) => {
     openWindow(window, buttonRef);
     bringWindowToFront(window);
@@ -143,6 +151,17 @@ function Home() {
           <Alert title="Error loading photos" variant="error">
             <p>{flickrError.message}</p>
           </Alert>
+        )}
+
+        {/* Render Projects window */}
+        {projectsWindow.isOpen && (
+          <Projects
+            position={projectsWindow.currentPosition}
+            zIndex={getWindowZIndex("projects-window")}
+            onFocus={() => bringWindowToFront("projects-window")}
+            onClose={() => closeWindow("projects-window")}
+            originPosition={projectsWindow.originPosition}
+          />
         )}
       </div>
     </DndContext>

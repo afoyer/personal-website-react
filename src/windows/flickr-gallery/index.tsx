@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from "motion/react";
 import { useState, useEffect, useRef, useMemo } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import DraggableWindow from "../draggable-window";
+import DraggableWindow from "../../components/draggable-window";
 import PhotoModal from "./PhotoModal";
 import { useFlickrGallery } from "../../jotai/hooks";
 import { fetchFlickrPhotos } from "../../utils/flickrApi";

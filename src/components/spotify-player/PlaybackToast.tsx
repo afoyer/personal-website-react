@@ -181,64 +181,62 @@ export default function PlaybackToast({
               ease: [0.16, 1, 0.3, 1],
               backgroundColor: { duration: 0.3 },
             }}
-            className="p-3 cursor-pointer backdrop-blur-sm"
+            className=" flex items-center cursor-pointer backdrop-blur-sm h-[50px] p-3 gap-3 "
             onClick={() => setIsExpanded(true)}
           >
-            <div className="flex items-center gap-3">
-              {/* Small album art */}
-              <motion.img
-                layoutId="album-art"
-                src={currentlyPlaying.item.album.images[0]?.url || ""}
-                alt={currentlyPlaying.item.album.name}
-                className="w-12 h-12 rounded object-cover shrink-0"
+            {/* Small album art */}
+            <motion.img
+              layoutId="album-art"
+              src={currentlyPlaying.item.album.images[0]?.url || ""}
+              alt={currentlyPlaying.item.album.name}
+              className="w-12 h-12 robject-cover shrink-0"
+              transition={{
+                duration: 0.4,
+                ease: [0.16, 1, 0.3, 1],
+              }}
+            />
+
+            {/* Track info */}
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-gray-900 truncate">
+                {currentlyPlaying.item.name}
+              </p>
+              <p className="text-xs text-gray-600 truncate">
+                {currentlyPlaying.item.artists.map((a) => a.name).join(", ")}
+              </p>
+            </div>
+
+            {/* Play/Pause and expand button */}
+            <div className="flex items-center gap-2">
+              <motion.button
+                layoutId="playback-button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onPlayPause();
+                }}
+                className="p-1.5 rounded-full bg-green-600 hover:bg-green-700 text-white transition-colors"
+                title={isPlaying ? "Pause" : "Play"}
                 transition={{
                   duration: 0.4,
                   ease: [0.16, 1, 0.3, 1],
                 }}
-              />
-
-              {/* Track info */}
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 truncate">
-                  {currentlyPlaying.item.name}
-                </p>
-                <p className="text-xs text-gray-600 truncate">
-                  {currentlyPlaying.item.artists.map((a) => a.name).join(", ")}
-                </p>
-              </div>
-
-              {/* Play/Pause and expand button */}
-              <div className="flex items-center gap-2">
-                <motion.button
-                  layoutId="playback-button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onPlayPause();
-                  }}
-                  className="p-1.5 rounded-full bg-green-600 hover:bg-green-700 text-white transition-colors"
-                  title={isPlaying ? "Pause" : "Play"}
-                  transition={{
-                    duration: 0.4,
-                    ease: [0.16, 1, 0.3, 1],
-                  }}
-                >
-                  {isPlaying ? (
-                    <Pause className="w-3.5 h-3.5" />
-                  ) : (
-                    <Play className="w-3.5 h-3.5" />
-                  )}
-                </motion.button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsExpanded(true);
-                  }}
-                  className="p-1 rounded hover:bg-green-200 transition-colors"
-                  aria-label="Expand"
-                >
-                  <ChevronUp className="w-4 h-4 text-gray-600" />
-                </button>
-              </div>
+              >
+                {isPlaying ? (
+                  <Pause className="w-3.5 h-3.5" />
+                ) : (
+                  <Play className="w-3.5 h-3.5" />
+                )}
+              </motion.button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsExpanded(true);
+                }}
+                className="p-1 rounded hover:bg-green-200 transition-colors"
+                aria-label="Expand"
+              >
+                <ChevronUp className="w-4 h-4 text-gray-600" />
+              </button>
             </div>
           </motion.div>
         )}

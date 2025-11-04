@@ -4,10 +4,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { GripVertical, X } from "lucide-react";
 import { ReactNode, useState, useRef, useEffect } from "react";
 
-interface DraggableWindowProps {
-  id: string;
-  title: ReactNode;
-  children: ReactNode;
+export interface DraggableWindowProps {
   position?: { x: number; y: number };
   width?: string;
   height?: string;
@@ -21,6 +18,13 @@ interface DraggableWindowProps {
   zIndex?: number;
   onFocus?: () => void;
   onClose?: () => void;
+  variant?: "normal" | "fullscreen";
+}
+
+export interface DraggableWindowContentProps extends DraggableWindowProps {
+  id: string;
+  title: ReactNode;
+  children: ReactNode;
 }
 
 type ResizeHandle =
@@ -50,10 +54,14 @@ export default function DraggableWindow({
   zIndex = 100,
   onFocus,
   onClose,
-}: DraggableWindowProps) {
+  variant = "normal",
+}: DraggableWindowContentProps) {
+  const isFullscreen = variant === "fullscreen";
+
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({
       id,
+      disabled: isFullscreen,
     });
 
   const [dimensions, setDimensions] = useState({
@@ -171,16 +179,26 @@ export default function DraggableWindow({
     ? CSS.Translate.toString(transform)
     : undefined;
 
-  const style = {
-    transform: dragTransform,
-    position: "absolute" as const,
-    left: position.x + positionOffset.x,
-    top: position.y + positionOffset.y,
-    width: `${dimensions.width}px`,
-    height: `${dimensions.height}px`,
-    zIndex: zIndex,
-    transformOrigin: "center",
-  } as React.CSSProperties;
+  const style = isFullscreen
+    ? ({
+        position: "fixed" as const,
+        left: 0,
+        top: 0,
+        width: "100vw",
+        height: "100vh",
+        zIndex: zIndex,
+        transformOrigin: "center",
+      } as React.CSSProperties)
+    : ({
+        transform: dragTransform,
+        position: "absolute" as const,
+        left: position.x + positionOffset.x,
+        top: position.y + positionOffset.y,
+        width: `${dimensions.width}px`,
+        height: `${dimensions.height}px`,
+        zIndex: zIndex,
+        transformOrigin: "center",
+      } as React.CSSProperties);
 
   const getResizeCursor = (handle: ResizeHandle) => {
     if (handle === "n" || handle === "s") return "ns-resize";
@@ -223,34 +241,50 @@ export default function DraggableWindow({
         onFocus();
       }
     },
-    className: `pointer-events-auto bg-white/95 backdrop-blur-sm shadow-2xl rounded-lg border border-gray-200 flex flex-col overflow-hidden ${className}`,
+    className: `pointer-events-auto bg-white/95 backdrop-blur-sm shadow-2xl ${
+      isFullscreen ? "" : "rounded-lg"
+    } border border-gray-200 flex flex-col overflow-hidden ${className}`,
   };
 
   const content = (
     <>
-      {/* Resize Handles - Corners */}
-      <ResizeHandle
-        handle="nw"
-        className="top-0 left-0 w-4 h-4 -ml-1 -mt-1 rounded-tl-lg"
-      />
-      <ResizeHandle
-        handle="ne"
-        className="top-0 right-0 w-4 h-4 -mr-1 -mt-1 rounded-tr-lg"
-      />
-      <ResizeHandle
-        handle="sw"
-        className="bottom-0 left-0 w-4 h-4 -ml-1 -mb-1 rounded-bl-lg"
-      />
-      <ResizeHandle
-        handle="se"
-        className="bottom-0 right-0 w-4 h-4 -mr-1 -mb-1 rounded-br-lg"
-      />
+      {/* Resize Handles - Only show in normal mode */}
+      {!isFullscreen && (
+        <>
+          {/* Resize Handles - Corners */}
+          <ResizeHandle
+            handle="nw"
+            className="top-0 left-0 w-4 h-4 -ml-1 -mt-1 rounded-tl-lg"
+          />
+          <ResizeHandle
+            handle="ne"
+            className="top-0 right-0 w-4 h-4 -mr-1 -mt-1 rounded-tr-lg"
+          />
+          <ResizeHandle
+            handle="sw"
+            className="bottom-0 left-0 w-4 h-4 -ml-1 -mb-1 rounded-bl-lg"
+          />
+          <ResizeHandle
+            handle="se"
+            className="bottom-0 right-0 w-4 h-4 -mr-1 -mb-1 rounded-br-lg"
+          />
 
-      {/* Resize Handles - Edges */}
-      <ResizeHandle handle="n" className="top-0 left-4 right-4 h-2 -mt-1" />
-      <ResizeHandle handle="s" className="bottom-0 left-4 right-4 h-2 -mb-1" />
-      <ResizeHandle handle="e" className="right-0 top-4 bottom-4 w-2 -mr-1" />
-      <ResizeHandle handle="w" className="left-0 top-4 bottom-4 w-2 -ml-1" />
+          {/* Resize Handles - Edges */}
+          <ResizeHandle handle="n" className="top-0 left-4 right-4 h-2 -mt-1" />
+          <ResizeHandle
+            handle="s"
+            className="bottom-0 left-4 right-4 h-2 -mb-1"
+          />
+          <ResizeHandle
+            handle="e"
+            className="right-0 top-4 bottom-4 w-2 -mr-1"
+          />
+          <ResizeHandle
+            handle="w"
+            className="left-0 top-4 bottom-4 w-2 -ml-1"
+          />
+        </>
+      )}
 
       {/* Window Title Bar - Drag Handle */}
       <div
@@ -259,17 +293,21 @@ export default function DraggableWindow({
         }`}
       >
         <div
-          {...(!resizeState?.isResizing ? { ...listeners, ...attributes } : {})}
+          {...(!isFullscreen && !resizeState?.isResizing
+            ? { ...listeners, ...attributes }
+            : {})}
           onMouseDown={() => {
             if (onFocus && !resizeState?.isResizing) {
               onFocus();
             }
           }}
-          className={`flex items-center gap-2 flex-1 cursor-move ${
-            isDragging ? "cursor-grabbing" : ""
+          className={`flex items-center gap-2 flex-1 ${
+            !isFullscreen
+              ? `cursor-move ${isDragging ? "cursor-grabbing" : ""}`
+              : ""
           }`}
         >
-          <GripVertical className="w-5 h-5 text-gray-400" />
+          {!isFullscreen && <GripVertical className="w-5 h-5 text-gray-400" />}
           <h3 className="font-semibold text-gray-800 text-sm">{title}</h3>
         </div>
         {onClose && (

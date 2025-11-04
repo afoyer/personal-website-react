@@ -40,6 +40,7 @@ export default function Nav({ buttonRef, isAllClosed, openWindow }: NavProps) {
       style={{
         position: "absolute",
         top: 0,
+        zIndex: 1000,
       }}
       initial={{
         opacity: 1,
