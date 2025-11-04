@@ -10,14 +10,15 @@ import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 import SpotifyCallback from "./pages/SpotifyCallback";
 import PlaybackToastContainer from "./components/spotify-player/PlaybackToastContainer";
+
 import { AnimatePresence } from "motion/react";
 
 function App() {
   return (
     <AnimatePresence>
       <Router>
-        <div className="min-h-screen font-sans ">
-          <main className="flexbox-border px-[64px] w-full">
+        <div className="min-h-screen font-sans relative">
+          <main className="flexbox-border px-[64px] w-full relative z-10">
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/profile" element={<Profile />} />

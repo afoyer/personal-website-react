@@ -24,8 +24,8 @@ export function useDraggableWindows(initialPositions: WindowPositions = {}) {
     // Initialize z-indices for all windows
     const initial: WindowZIndices = {};
     Object.keys(initialPositions).forEach((windowId, index) => {
-      initial[windowId] = 50 + index; // Start at z-50, increment by 1
-      zIndexCounter.current = Math.max(zIndexCounter.current, 50 + index);
+      initial[windowId] = 100 + index; // Start at z-100, increment by 1
+      zIndexCounter.current = Math.max(zIndexCounter.current, 100 + index);
     });
     return initial;
   });
@@ -55,7 +55,7 @@ export function useDraggableWindows(initialPositions: WindowPositions = {}) {
 
       // Ensure all other windows have lower z-index
       Object.keys(newZIndices).forEach((id) => {
-        if (id !== windowId && newZIndices[id] >= zIndexCounter.current) {
+        if (id !== windowId && newZIndices[id]! >= zIndexCounter.current) {
           // Keep other windows at their current z-index if it's lower,
           // or adjust if they were higher (shouldn't happen, but safety check)
         }
@@ -84,7 +84,7 @@ export function useDraggableWindows(initialPositions: WindowPositions = {}) {
 
   const getWindowZIndex = useCallback(
     (windowId: string) => {
-      return zIndices[windowId] || 50;
+      return zIndices[windowId] || 100;
     },
     [zIndices]
   );

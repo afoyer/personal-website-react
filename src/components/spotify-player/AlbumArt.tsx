@@ -14,3 +14,4 @@ export default function AlbumArt({ imageUrl, albumName }: AlbumArtProps) {
     </div>
   );
 }
+

@@ -17,14 +17,18 @@ interface SpotifyPlayerProps {
   redirectUri?: string;
   zIndex?: number;
   onFocus?: () => void;
+  onClose: () => void;
+  originPosition?: { x: number; y: number };
 }
 
-export default function SpotifyPlayer({
+export default function SpotifyWindowContent({
   position = { x: 0, y: 0 },
   clientId,
   redirectUri,
   zIndex,
   onFocus,
+  onClose,
+  originPosition,
 }: SpotifyPlayerProps) {
   // Get redirect URI from prop or default to current origin
   // IMPORTANT: This must EXACTLY match the redirect URI configured in your Spotify app
@@ -68,6 +72,9 @@ export default function SpotifyPlayer({
 
     checkAuth();
   }, []);
+  const handleClose = () => {
+    onClose?.();
+  };
 
   // Listen for messages from OAuth popup window
   useEffect(() => {
@@ -218,8 +225,15 @@ export default function SpotifyPlayer({
       minHeight={500}
       zIndex={zIndex}
       onFocus={onFocus}
+      onClose={handleClose}
+      initial={{
+        opacity: 0,
+        scale: originPosition ? 0 : 1,
+      }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.8 }}
     >
-      <div className="flex flex-col h-full bg-gradient-to-b from-green-50 to-green-100">
+      <div className="flex flex-col h-full bg-gradient-to-b from-green-400 to-green-200">
         {loading && !authenticated ? (
           <div className="flex items-center justify-center h-full">
             <div className="text-center">

@@ -1,12 +1,12 @@
 import { motion } from "motion/react";
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical } from "lucide-react";
+import { GripVertical, X } from "lucide-react";
 import { ReactNode, useState, useRef, useEffect } from "react";
 
 interface DraggableWindowProps {
   id: string;
-  title: string;
+  title: ReactNode;
   children: ReactNode;
   position?: { x: number; y: number };
   width?: string;
@@ -15,11 +15,12 @@ interface DraggableWindowProps {
   minHeight?: number;
   className?: string;
   contentClassName?: string;
-  initial?: { opacity?: number; y?: number };
-  animate?: { opacity?: number; y?: number };
-  exit?: { opacity?: number };
+  initial?: { opacity?: number; y?: number; scale?: number; x?: number };
+  animate?: { opacity?: number; y?: number; scale?: number; x?: number };
+  exit?: { opacity?: number; scale?: number };
   zIndex?: number;
   onFocus?: () => void;
+  onClose?: () => void;
 }
 
 type ResizeHandle =
@@ -46,8 +47,9 @@ export default function DraggableWindow({
   initial = { opacity: 0 },
   animate = { opacity: 1 },
   exit = { opacity: 0 },
-  zIndex = 50,
+  zIndex = 100,
   onFocus,
+  onClose,
 }: DraggableWindowProps) {
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({
@@ -58,6 +60,8 @@ export default function DraggableWindow({
     width: parseInt(width) || 600,
     height: parseInt(height) || 500,
   });
+
+  const [hasAnimated, setHasAnimated] = useState(false);
   const [positionOffset, setPositionOffset] = useState({ x: 0, y: 0 });
   const [resizeState, setResizeState] = useState<{
     isResizing: boolean;
@@ -163,15 +167,20 @@ export default function DraggableWindow({
     }
   };
 
+  const dragTransform = transform
+    ? CSS.Translate.toString(transform)
+    : undefined;
+
   const style = {
-    transform: CSS.Translate.toString(transform),
+    transform: dragTransform,
     position: "absolute" as const,
     left: position.x + positionOffset.x,
     top: position.y + positionOffset.y,
     width: `${dimensions.width}px`,
     height: `${dimensions.height}px`,
     zIndex: zIndex,
-  };
+    transformOrigin: "center",
+  } as React.CSSProperties;
 
   const getResizeCursor = (handle: ResizeHandle) => {
     if (handle === "n" || handle === "s") return "ns-resize";
@@ -200,21 +209,25 @@ export default function DraggableWindow({
     />
   );
 
-  return (
-    <motion.div
-      ref={(node) => {
-        setNodeRef(node);
-        if (node) {
-          windowRef.current = node;
-        }
-      }}
-      style={style}
-      onClick={handleWindowClick}
-      className={`pointer-events-auto bg-white/95 backdrop-blur-sm shadow-2xl rounded-lg border border-gray-200 flex flex-col overflow-hidden ${className}`}
-      initial={initial}
-      animate={animate}
-      exit={exit}
-    >
+  const commonProps = {
+    ref: (node: HTMLDivElement | null) => {
+      setNodeRef(node);
+      if (node) {
+        windowRef.current = node;
+      }
+    },
+    style,
+    onClick: handleWindowClick,
+    onMouseDown: (_e: React.MouseEvent) => {
+      if (onFocus && !resizeState?.isResizing) {
+        onFocus();
+      }
+    },
+    className: `pointer-events-auto bg-white/95 backdrop-blur-sm shadow-2xl rounded-lg border border-gray-200 flex flex-col overflow-hidden ${className}`,
+  };
+
+  const content = (
+    <>
       {/* Resize Handles - Corners */}
       <ResizeHandle
         handle="nw"
@@ -241,23 +254,61 @@ export default function DraggableWindow({
 
       {/* Window Title Bar - Drag Handle */}
       <div
-        {...(!resizeState?.isResizing ? { ...listeners, ...attributes } : {})}
-        className={`flex items-center justify-between px-4 py-3 bg-gray-100/80 border-b border-gray-200 cursor-move select-none transition-colors ${
-          isDragging ? "bg-gray-200/80 cursor-grabbing" : ""
+        className={`flex items-center justify-between px-4 py-3 bg-gray-100/80 border-b border-gray-200 select-none transition-colors ${
+          isDragging ? "bg-gray-200/80" : ""
         }`}
       >
-        <div className="flex items-center gap-2">
+        <div
+          {...(!resizeState?.isResizing ? { ...listeners, ...attributes } : {})}
+          onMouseDown={() => {
+            if (onFocus && !resizeState?.isResizing) {
+              onFocus();
+            }
+          }}
+          className={`flex items-center gap-2 flex-1 cursor-move ${
+            isDragging ? "cursor-grabbing" : ""
+          }`}
+        >
           <GripVertical className="w-5 h-5 text-gray-400" />
           <h3 className="font-semibold text-gray-800 text-sm">{title}</h3>
         </div>
+        {onClose && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onClose();
+            }}
+            className="p-1 hover:bg-gray-200 rounded transition-colors cursor-pointer"
+            aria-label="Close"
+          >
+            <X className="w-4 h-4 text-gray-600" />
+          </button>
+        )}
       </div>
 
       {/* Window Content */}
-      <div
-        className={`flex-1 overflow-auto position-relative ${contentClassName}`}
-      >
+      <div className={`flex-1 overflow-auto relative ${contentClassName}`}>
         {children}
       </div>
+    </>
+  );
+
+  // Use motion.div only for initial animation, then switch to regular div
+  return hasAnimated || isDragging ? (
+    <div {...commonProps}>{content}</div>
+  ) : (
+    <motion.div
+      {...commonProps}
+      initial={initial}
+      animate={animate}
+      exit={exit}
+      transition={{
+        duration: 0.3,
+        ease: "easeOut",
+      }}
+      onAnimationComplete={() => setHasAnimated(true)}
+    >
+      {content}
     </motion.div>
   );
 }

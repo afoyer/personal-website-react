@@ -46,7 +46,7 @@ export default function PlaybackToast({
           const color = await fac.getColorAsync(img);
           // Slightly fade/blurr the color for a subtle bg (low alpha)
           setAvgColor(
-            `rgba(${color.value[0]},${color.value[1]},${color.value[2]},0.15)`
+            `rgba(${color.value[0]},${color.value[1]},${color.value[2]},0.7)`
           );
         } catch {
           setAvgColor(undefined);
@@ -84,12 +84,13 @@ export default function PlaybackToast({
           <motion.div
             key="expanded"
             layoutId="toast-content"
+            animate={{ backgroundColor: avgColor ?? "transparent" }}
             transition={{
+              duration: 0.4,
               ease: [0.16, 1, 0.3, 1],
-              opacity: { duration: 0.3 },
+              backgroundColor: { duration: 0.3 },
             }}
             className="p-4 backdrop-blur-sm overflow-hidden"
-            style={{ backgroundColor: avgColor ?? "" }}
           >
             {/* Header with collapse button */}
             <motion.div
@@ -174,12 +175,13 @@ export default function PlaybackToast({
           <motion.div
             key="collapsed"
             layoutId="toast-content"
+            animate={{ backgroundColor: avgColor ?? "transparent" }}
             transition={{
               duration: 0.4,
               ease: [0.16, 1, 0.3, 1],
+              backgroundColor: { duration: 0.3 },
             }}
             className="p-3 cursor-pointer backdrop-blur-sm"
-            style={{ backgroundColor: avgColor ?? "" }}
             onClick={() => setIsExpanded(true)}
           >
             <div className="flex items-center gap-3">

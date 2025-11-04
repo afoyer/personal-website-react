@@ -9,3 +9,6 @@ export * from "./notificationAtoms";
 
 // Playback atoms
 export * from "./playbackAtoms";
+
+// Gallery atoms
+export * from "./galleryAtoms";

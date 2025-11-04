@@ -15,13 +15,15 @@ import {
   incrementGlobalCountAtom,
   decrementGlobalCountAtom,
   resetGlobalCountAtom,
-  toggleSidebarAtom,
   setUserAtom,
   clearUserAtom,
-  updateUserProfileAtom,
   addNotificationAtom,
   removeNotificationAtom,
   clearAllNotificationsAtom,
+  flickrErrorAtom,
+  flickrHasGalleryAtom,
+  setFlickrErrorAtom,
+  setFlickrHasGalleryAtom,
 } from "./atoms";
 
 // Custom hook for write-only atoms (actions)
@@ -74,5 +76,18 @@ export function useNotifications() {
     addNotification,
     removeNotification,
     clearAll,
+  };
+}
+
+export function useFlickrGallery() {
+  const flickrError = useAtomValue(flickrErrorAtom);
+  const flickrHasGallery = useAtomValue(flickrHasGalleryAtom);
+  const [, setFlickrError] = useAtom(setFlickrErrorAtom);
+  const [, setFlickrHasGallery] = useAtom(setFlickrHasGalleryAtom);
+  return {
+    flickrError,
+    flickrHasGallery,
+    setFlickrError,
+    setFlickrHasGallery,
   };
 }

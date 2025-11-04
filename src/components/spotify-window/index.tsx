@@ -1,22 +1,26 @@
 import { useQuery } from "@tanstack/react-query";
 import { getSpotifyClientId } from "../../utils/spotifyApi";
-import SpotifyPlayer from "../spotify-player";
+import SpotifyWindow from "../spotify-player";
 import Alert from "../alert";
 
 interface SpotifyWindowProps {
   position: { x: number; y: number };
   zIndex?: number;
   onFocus?: () => void;
+  onClose: () => void;
+  originPosition?: { x: number; y: number };
 }
 
 /**
  * Container component that handles Spotify authentication setup
  * and renders the Spotify player when ready
  */
-export default function SpotifyWindow({
+export default function SpotifyNowPlayingWindow({
   position,
   zIndex,
   onFocus,
+  onClose,
+  originPosition,
 }: SpotifyWindowProps) {
   const {
     data: spotifyClientId,
@@ -61,11 +65,13 @@ export default function SpotifyWindow({
   }
 
   return (
-    <SpotifyPlayer
+    <SpotifyWindow
       position={position}
       clientId={spotifyClientId}
       zIndex={zIndex}
       onFocus={onFocus}
+      onClose={onClose}
+      originPosition={originPosition}
     />
   );
 }

@@ -24,3 +24,4 @@ export default function AuthScreen({ onConnect, error }: AuthScreenProps) {
     </div>
   );
 }
+

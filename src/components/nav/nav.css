@@ -1,0 +1,59 @@
+.nav-container {
+  position: relative;
+  overflow: visible;
+}
+
+.nav-background {
+  position: absolute;
+  inset: 0;
+  border-radius: 32px;
+  mix-blend-mode: color-dodge;
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.1),
+    rgba(0, 0, 0, 0.38),
+    rgba(255, 255, 255, 0.27) 32px
+  );
+  backdrop-filter: blur(20px);
+  filter: blur(0.5px);
+  box-shadow: inset 0 0 10px #000;
+  pointer-events: none;
+}
+
+.nav-background::after {
+  content: "";
+  position: absolute;
+  width: calc(100% - 1px);
+  height: calc(100% - 1px);
+  border-radius: 32px;
+  filter: blur(2px);
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.1),
+    rgba(0, 0, 0, 0.38),
+    rgba(255, 255, 255, 0.1) 32px
+  );
+}
+
+.nav-backdrop-shape {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 200px;
+  height: 200px;
+  margin-left: -100px;
+  margin-top: -100px;
+  border-radius: 100px;
+  filter: blur(16px);
+  mix-blend-mode: plus-lighter;
+  background: linear-gradient(
+    180deg,
+    oklch(70% 24% 290deg) 0%,
+    oklch(0.6794 0.2245 30.71) 48%,
+    oklch(44% 57% 285deg) 68%,
+    oklch(23% 37% 268deg) 100%
+  );
+  z-index: 0;
+  box-shadow: 0px 0px 120px -10px oklch(44% 57% 285deg);
+  pointer-events: none;
+}

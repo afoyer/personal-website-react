@@ -1,90 +1,130 @@
-import { useQuery } from "@tanstack/react-query";
-import { motion } from "motion/react";
-import { DndContext } from "@dnd-kit/core";
-import { fetchFlickrPhotos } from "../utils/flickrApi";
+import { DndContext, DragEndEvent } from "@dnd-kit/core";
+import { useRef, useMemo, useCallback } from "react";
 import { useDraggableWindows } from "../hooks/useDraggableWindows";
+import { useFlickrGallery } from "../jotai/hooks";
+import { useWindowAnimations } from "../hooks/useWindowAnimation";
 import FlickrGallery from "../components/flickr-gallery";
-import SpotifyWindow from "../components/spotify-window";
 import Alert from "../components/alert";
+import Nav from "../components/nav";
+import SpotifyNowPlaying from "../components/spotify-window";
 
 function Home() {
-  // Manage draggable window positions and z-indices
-  const {
-    handleDragEnd,
-    getWindowPosition,
-    bringWindowToFront,
-    getWindowZIndex,
-  } = useDraggableWindows({
-    "flickr-gallery-window": { x: 0, y: 0 },
-    "spotify-player-window": { x: 100, y: 100 },
-  });
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
-  // Fetch Flickr photos
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["flickr-photos"],
-    queryFn: () =>
-      fetchFlickrPhotos({
-        per_page: 50,
-        sort: "date-posted-desc",
-      }),
-  });
+  // Calculate final position for flickr gallery
+  const flickrFinalPosition = useMemo(
+    () => ({
+      x: 16,
+      y: 16,
+    }),
+    []
+  );
+  const spotifyFinalPosition = useMemo(
+    () => ({
+      x: 16,
+      y: 32,
+    }),
+    []
+  );
+
+  // Manage draggable window positions and z-indices
+  const { handleDragEnd, bringWindowToFront, getWindowZIndex } =
+    useDraggableWindows({
+      "flickr-gallery-window": flickrFinalPosition,
+      "spotify-player-window": spotifyFinalPosition,
+    });
+
+  // Get Flickr gallery state from atoms
+  const { flickrError } = useFlickrGallery();
+
+  // Use window animation hook for all windows
+  const { windows, openWindow, closeWindow, updatePosition } =
+    useWindowAnimations({
+      "flickr-gallery-window": { finalPosition: flickrFinalPosition },
+      "spotify-player-window": { finalPosition: spotifyFinalPosition },
+    });
+
+  // Extract window states for easier access
+  const flickrWindow = windows["flickr-gallery-window"] || {
+    isOpen: false,
+    originPosition: null,
+    currentPosition: flickrFinalPosition,
+  };
+  const spotifyWindow = windows["spotify-player-window"] || {
+    isOpen: false,
+    originPosition: null,
+    currentPosition: spotifyFinalPosition,
+  };
+  const isAllClosed = !flickrWindow.isOpen && !spotifyWindow.isOpen;
+
+  const handleOpenGallery = () => {
+    openWindow("flickr-gallery-window", buttonRef);
+    bringWindowToFront("flickr-gallery-window");
+  };
+
+  const handleOpenSpotify = () => {
+    openWindow("spotify-player-window", buttonRef);
+    bringWindowToFront("spotify-player-window");
+  };
+
+  // Custom drag end handler that updates both systems
+  const handleWindowDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      handleDragEnd(event);
+
+      // Update the window animation position after drag
+      const windowKey = event.active.id as string;
+      if (event.delta && windows[windowKey]) {
+        const currentPos = windows[windowKey].currentPosition;
+        const newPosition = {
+          x: currentPos.x + event.delta.x,
+          y: currentPos.y + event.delta.y,
+        };
+        updatePosition(windowKey, newPosition);
+      }
+    },
+    [handleDragEnd, windows, updatePosition]
+  );
 
   return (
-    <DndContext onDragEnd={handleDragEnd}>
+    <DndContext onDragEnd={handleWindowDragEnd}>
       {/* Content overlay */}
       <div
         id="home-content"
         className="w-full h-screen flex flex-col items-center justify-center relative"
       >
-        <motion.div
-          className="max-w-2xl mx-auto bg-black/30 backdrop-blur-sm rounded-2xl p-8 border border-white/10 pointer-events-auto"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-        >
-          <p className="text-lg text-white/95 leading-relaxed">
-            This is your home page with a dynamic Flickr gallery background. The
-            photos create an immersive dark mode experience while maintaining
-            excellent readability for your content.
-          </p>
-        </motion.div>
-        {/* Render gallery as background */}
-        {data && data.photos && data.photos.length > 0 && (
+        <Nav
+          buttonRef={buttonRef}
+          onGalleryClick={handleOpenGallery}
+          onSpotifyClick={handleOpenSpotify}
+          isAllClosed={isAllClosed}
+        />
+        {/* Render gallery only when open */}
+        {flickrWindow.isOpen && (
           <FlickrGallery
-            photos={data.photos}
-            position={getWindowPosition("flickr-gallery-window", {
-              x: 0,
-              y: 0,
-            })}
+            position={flickrWindow.currentPosition}
             zIndex={getWindowZIndex("flickr-gallery-window")}
             onFocus={() => bringWindowToFront("flickr-gallery-window")}
+            onClose={() => closeWindow("flickr-gallery-window")}
+            originPosition={flickrWindow.originPosition}
           />
         )}
+
         {/* Render Spotify player */}
-        <SpotifyWindow
-          position={getWindowPosition("spotify-player-window", {
-            x: 100,
-            y: 100,
-          })}
-          zIndex={getWindowZIndex("spotify-player-window")}
-          onFocus={() => bringWindowToFront("spotify-player-window")}
-        />
-        {isLoading && (
-          <div className="flex flex-col items-center justify-center py-20 pointer-events-auto">
-            <span className="relative flex h-8 w-8 mb-4">
-              <span className="animate-spin absolute inline-flex h-full w-full rounded-full border-4 border-solid border-white/70 border-r-transparent"></span>
-            </span>
-            <p className="text-white">Loading photos...</p>
-          </div>
+        {spotifyWindow.isOpen && (
+          <SpotifyNowPlaying
+            position={spotifyWindow.currentPosition}
+            zIndex={getWindowZIndex("spotify-player-window")}
+            onFocus={() => bringWindowToFront("spotify-player-window")}
+            onClose={() => closeWindow("spotify-player-window")}
+            originPosition={spotifyWindow.originPosition || undefined}
+          />
         )}
 
-        {error && (
+        {/* Display error alert if there's an error */}
+        {flickrError && (
           <Alert title="Error loading photos" variant="error">
-            <p>
-              {error instanceof Error
-                ? error.message
-                : "An unexpected error occurred"}
-            </p>
+            <p>{flickrError.message}</p>
           </Alert>
         )}
       </div>
