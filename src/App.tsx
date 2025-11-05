@@ -8,13 +8,13 @@ import { useEffect } from "react";
 
 // Components
 import Home from "./pages/Home";
-import Profile from "./pages/Profile";
 import SpotifyCallback from "./pages/SpotifyCallback";
-import PlaybackToastContainer from "./components/spotify-player/PlaybackToastContainer";
 
 import { AnimatePresence } from "motion/react";
 import { useAtomValue } from "jotai";
 import { themeAtom } from "./jotai/atoms/appAtoms";
+
+export const CONTAINER_PADDING = 16;
 
 function App() {
   const theme = useAtomValue(themeAtom);
@@ -32,17 +32,17 @@ function App() {
     <AnimatePresence>
       <Router>
         <div
-          className={`min-h-screen font-sans relative transition-colors duration-300 ${theme === "dark" ? "dark bg-gray-900 text-white" : "bg-white text-gray-900"}`}
+          className={`h-screen w-screen font-sans relative transition-colors duration-300 overflow-hidden ${theme === "dark" ? "dark bg-gray-900 text-white" : "bg-white text-gray-900"}`}
         >
-          <main className="flexbox-border px-[64px] w-full relative z-10">
+          <main
+            className={`flexbox-border px-[${CONTAINER_PADDING}px] w-full h-full relative z-10 overflow-hidden`}
+          >
             <Routes>
               <Route path="/" element={<Home />} />
-              <Route path="/profile" element={<Profile />} />
               <Route path="/spotify-callback" element={<SpotifyCallback />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </main>
-          <PlaybackToastContainer />
         </div>
       </Router>
     </AnimatePresence>

@@ -6,6 +6,7 @@ import { toggleThemeAtom } from "../../jotai/atoms/appAtoms";
 
 import "./nav.css";
 import NavButton from "./NavButton";
+import NavFan, { NavFanItem } from "./nav-fan";
 import { WindowKey } from "../../pages/Home";
 
 interface NavProps {
@@ -25,6 +26,30 @@ export default function Nav({ buttonRef, isAllClosed, openWindow }: NavProps) {
   // Apply spring animation to mouse movement for smooth following
   const springX = useSpring(mouseX, { stiffness: 150, damping: 20 });
   const springY = useSpring(mouseY, { stiffness: 150, damping: 20 });
+
+  // Projects menu items
+  const projectItems: NavFanItem[] = [
+    {
+      id: "amazon",
+      label: "Amazon",
+      onClick: () => openWindow("amazon-window"),
+    },
+    {
+      id: "light-drawing",
+      label: "Light Drawing",
+      onClick: () => openWindow("light-window"),
+    },
+    {
+      id: "radiosity",
+      label: "Radiosity",
+      onClick: () => openWindow("radiosity-window"),
+    },
+    {
+      id: "pantonify",
+      label: "Pantonify",
+      onClick: () => openWindow("pantonify-window"),
+    },
+  ];
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -83,7 +108,7 @@ export default function Nav({ buttonRef, isAllClosed, openWindow }: NavProps) {
       </div>
 
       {/* Content layer with overflow visible */}
-      <div className="nav-container flex items-center gap-4 justify-center max-w-2xl mx-auto bg-black/30 backdrop-blur-sm rounded-4xl p-2 border border-white/10 pointer-events-auto center-x h-[50px]">
+      <div className="nav-container flex items-center gap-3 sm:gap-4 md:gap-5 justify-center max-w-2xl mx-auto bg-black/30 backdrop-blur-sm rounded-4xl p-2 border border-white/10 pointer-events-auto center-x h-[50px]">
         <NavButton
           buttonRef={buttonRef}
           onClick={() => openWindow("resume-window")}
@@ -128,15 +153,16 @@ export default function Nav({ buttonRef, isAllClosed, openWindow }: NavProps) {
         >
           <Images className="w-5 h-5" />
         </NavButton>
-        <NavButton
-          buttonRef={buttonRef}
-          onClick={() => openWindow("projects-window")}
+        <NavFan
+          items={projectItems}
+          direction="right"
           hoverBackgroundColor="rgba(251, 192, 45, 0.6)"
-          popoverContent="Projects"
-          popoverPosition="top"
+          radius={100}
+          maxArcAngle={45}
+          isNavAtBottom={!isAllClosed}
         >
           <List className="w-5 h-5" />
-        </NavButton>
+        </NavFan>
       </div>
     </motion.div>
   );

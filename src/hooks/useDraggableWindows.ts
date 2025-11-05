@@ -91,6 +91,7 @@ export function useDraggableWindows(initialPositions: WindowPositions = {}) {
 
   return {
     positions,
+    zIndices,
     handleDragEnd,
     setWindowPosition,
     getWindowPosition,

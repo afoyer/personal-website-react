@@ -115,7 +115,7 @@ export default function NavButton({
       <motion.button
         ref={buttonRef}
         onClick={onClick}
-        className={`flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-4xl border border-white/20 text-white transition-all duration-200 relative z-10 ${className}`}
+        className={`flex items-center gap-2 px-2 sm:px-3 md:px-4 py-2 bg-white/10 hover:bg-white/20 rounded-4xl border border-white/20 text-white transition-all duration-200 relative z-10 ${className}`}
         whileHover={{
           scale: 1.05,
           backgroundColor: hoverBackgroundColor,

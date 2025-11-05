@@ -9,7 +9,11 @@ import {
 } from "../../utils/spotifyApi";
 import TopTracks from "./TopTracks";
 import AuthScreen from "./AuthScreen";
-import PlayerHeader from "./PlayerHeader";
+import { useAtom } from "jotai";
+import {
+  getWindowDimensionsAtom,
+  updateWindowDimensionsAtom,
+} from "../../jotai/atoms/appAtoms";
 
 interface SpotifyPlayerProps {
   position?: { x: number; y: number };
@@ -55,6 +59,28 @@ export default function SpotifyWindowContent({
   const [error, setError] = useState<string | null>(null);
   const popupRef = useRef<Window | null>(null);
   const processingCodeRef = useRef<string | null>(null); // Track codes being processed
+
+  // Get saved dimensions and updater
+  const [getWindowDimensions] = useAtom(getWindowDimensionsAtom);
+  const [, updateWindowDimensions] = useAtom(updateWindowDimensionsAtom);
+
+  const savedDimensions = getWindowDimensions("spotify-player-window");
+  const windowWidth = savedDimensions?.width
+    ? `${savedDimensions.width}px`
+    : "450px";
+  const windowHeight = savedDimensions?.height
+    ? `${savedDimensions.height}px`
+    : "600px";
+
+  const handleDimensionChange = (dimensions: {
+    width: number;
+    height: number;
+  }) => {
+    updateWindowDimensions({
+      windowId: "spotify-player-window",
+      dimensions,
+    });
+  };
 
   // Check authentication status on mount
   useEffect(() => {
@@ -219,21 +245,20 @@ export default function SpotifyWindowContent({
       id="spotify-player-window"
       title="Spotify Player"
       position={position}
-      width="450px"
-      height="600px"
+      width={windowWidth}
+      height={windowHeight}
       minWidth={400}
       minHeight={500}
       zIndex={zIndex}
       onFocus={onFocus}
       onClose={handleClose}
+      onDimensionChange={handleDimensionChange}
       initial={{
         opacity: 0,
         scale: originPosition ? 0 : 1,
       }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.8 }}
     >
-      <div className="flex flex-col h-full bg-gradient-to-b from-green-400 to-green-200">
+      <div className="flex flex-col h-full bg-gradient-to-b from-green-400 to-green-200 dark:from-green-600 dark:to-green-800">
         {loading && !authenticated ? (
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
@@ -245,8 +270,6 @@ export default function SpotifyWindowContent({
           <AuthScreen onConnect={handleConnect} error={error} />
         ) : (
           <div className="flex flex-col h-full p-4">
-            <PlayerHeader onLogout={handleLogout} />
-
             <div className="flex-1 min-h-0 mt-2">
               <TopTracks />
             </div>

@@ -166,7 +166,7 @@ export default function TopTracks({ onTrackClick }: TopTracksProps) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="flex-1 overflow-y-auto"
+          className="flex-1 flex items-center justify-center p-2 overflow-hidden"
         >
           {loading ? (
             <div className="flex items-center justify-center h-full">
@@ -194,60 +194,92 @@ export default function TopTracks({ onTrackClick }: TopTracksProps) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="relative rounded-2xl overflow-hidden shadow-2xl"
-              style={{
-                minHeight: "500px",
-              }}
+              className="w-full h-full flex items-center justify-center p-2"
             >
               {/* Main Card */}
-              <motion.div className="bg-gray-100 rounded-2xl m-4 overflow-hidden shadow-xl">
-                {/* Header */}
-                <div className="bg-gray-100 px-6 py-4 text-center border-b border-gray-200">
-                  <h2 className="text-2xl font-bold text-gray-900 tracking-wide">
+              <motion.div
+                className="bg-gray-100 dark:bg-gray-800 rounded-2xl overflow-hidden shadow-xl flex flex-col h-full max-w-2xs min-w-3xs"
+                style={{
+                  aspectRatio: "3 / 5",
+                  fontSize: "min(1.6vh, 14px)",
+                }}
+              >
+                {/* Header - 8% of height */}
+                <div
+                  className="bg-gray-100 text-center border-b border-gray-200 shrink-0"
+                  style={{ height: "8%", padding: "1em 1.5em" }}
+                >
+                  <h2
+                    className="font-bold text-gray-900 tracking-wide"
+                    style={{ fontSize: "1.75em" }}
+                  >
                     PANTONIFY©
                   </h2>
                 </div>
 
-                {/* Swatches */}
-                <div className="divide-y divide-gray-300">
+                {/* Swatches - 82% of height (divided by 5 tracks) */}
+                <div
+                  className="divide-y divide-gray-300"
+                  style={{ height: "82%" }}
+                >
                   {swatches.map((swatch) => (
                     <div
                       key={swatch.track.id}
                       onClick={() => onTrackClick?.(swatch.track)}
                       className={`${
                         onTrackClick ? "cursor-pointer hover:opacity-95" : ""
-                      } transition-opacity`}
+                      } transition-opacity h-full flex flex-col`}
+                      style={{ height: "20%" }}
                     >
-                      {/* Color Swatch with Album Art */}
+                      {/* Color Swatch with Album Art - 60% of track height */}
                       <div
-                        className="relative h-32 overflow-hidden"
+                        className="relative overflow-hidden flex-1"
                         style={{ backgroundColor: swatch.color }}
                       >
                         {swatch.albumArtUrl && (
                           <img
                             src={swatch.albumArtUrl}
                             alt={swatch.track.album.name}
-                            className="absolute right-4 top-1/2 -translate-y-1/2 w-24 h-24 object-cover opacity-50"
+                            className="absolute top-1/2 -translate-y-1/2 object-cover opacity-50"
+                            style={{
+                              right: "0.5em",
+                              height: "85%",
+                              aspectRatio: "1",
+                            }}
                           />
                         )}
                       </div>
 
-                      {/* Text Area */}
-                      <div className="bg-gray-100 px-6 py-4">
-                        <div className="flex items-start justify-between gap-4">
+                      {/* Text Area - 40% of track height */}
+                      <div className="bg-gray-100 flex-1 px-2 py-1">
+                        <div
+                          className="flex items-start justify-between h-full"
+                          style={{ gap: "1em" }}
+                        >
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-bold text-gray-900 uppercase tracking-wide mb-1">
+                            <p
+                              className="font-bold text-gray-900 uppercase tracking-wide"
+                              style={{
+                                fontSize: "0.75em",
+                              }}
+                            >
                               {swatch.track.artists
                                 .map((a) => a.name)
                                 .join(", ")
                                 .toUpperCase()}
                             </p>
-                            <p className="text-xs font-medium text-gray-700">
+                            <p
+                              className="font-medium text-gray-700"
+                              style={{ fontSize: "0.7em" }}
+                            >
                               {swatch.pantoneCode}
                             </p>
                           </div>
                           <div className="shrink-0">
-                            <p className="text-sm font-normal text-gray-900">
+                            <p
+                              className="font-normal text-gray-900"
+                              style={{ fontSize: "0.85em" }}
+                            >
                               {swatch.track.name}
                             </p>
                           </div>
@@ -257,13 +289,24 @@ export default function TopTracks({ onTrackClick }: TopTracksProps) {
                   ))}
                 </div>
 
-                {/* Footer */}
-                <div className="bg-gray-100 px-6 py-3 border-t border-gray-200 flex items-center justify-between">
-                  <p className="text-xs text-gray-700">
+                {/* Footer - 10% of height */}
+                <div
+                  className="bg-gray-100 border-t border-gray-200 flex items-center justify-between shrink-0"
+                  style={{ height: "10%", padding: "0 1.5em" }}
+                >
+                  <p className="text-gray-700" style={{ fontSize: "0.7em" }}>
                     Made for Aymeric, {currentDate}
                   </p>
-                  <div className="w-8 h-8 rounded-full bg-gray-200 border-2 border-gray-400 flex items-center justify-center">
-                    <span className="text-xs font-bold text-gray-700">AF</span>
+                  <div
+                    className="rounded-full bg-gray-200 border-2 border-gray-400 flex items-center justify-center"
+                    style={{ width: "2.5em", height: "2.5em" }}
+                  >
+                    <span
+                      className="font-bold text-gray-700"
+                      style={{ fontSize: "0.7em" }}
+                    >
+                      AF
+                    </span>
                   </div>
                 </div>
               </motion.div>

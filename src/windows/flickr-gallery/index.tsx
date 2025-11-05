@@ -5,9 +5,15 @@ import DraggableWindow from "../../components/draggable-window";
 import PhotoModal from "./PhotoModal";
 import { useFlickrGallery } from "../../jotai/hooks";
 import { fetchFlickrPhotos } from "../../utils/flickrApi";
+import { useAtom } from "jotai";
+import {
+  getWindowDimensionsAtom,
+  updateWindowDimensionsAtom,
+} from "../../jotai/atoms/appAtoms";
 
 import type { FlickrPhoto } from "../../utils/flickrApi";
 import { Images } from "lucide-react";
+import Spinner from "../../components/spinner";
 
 interface FlickrGalleryProps {
   position: { x: number; y: number };
@@ -27,8 +33,31 @@ export default function FlickrGallery({
   const [selectedPhoto, setSelectedPhoto] = useState<FlickrPhoto | null>(null);
   const galleryRef = useRef<HTMLDivElement>(null);
   const observerRef = useRef<HTMLDivElement>(null);
+  const [shouldAnimatePhotos, setShouldAnimatePhotos] = useState(true);
 
   const { setFlickrError, setFlickrHasGallery } = useFlickrGallery();
+
+  // Get saved dimensions and updater
+  const [getWindowDimensions] = useAtom(getWindowDimensionsAtom);
+  const [, updateWindowDimensions] = useAtom(updateWindowDimensionsAtom);
+
+  const savedDimensions = getWindowDimensions("flickr-gallery-window");
+  const windowWidth = savedDimensions?.width
+    ? `${savedDimensions.width}px`
+    : "600px";
+  const windowHeight = savedDimensions?.height
+    ? `${savedDimensions.height}px`
+    : "500px";
+
+  const handleDimensionChange = (dimensions: {
+    width: number;
+    height: number;
+  }) => {
+    updateWindowDimensions({
+      windowId: "flickr-gallery-window",
+      dimensions,
+    });
+  };
 
   // Fetch Flickr photos with infinite scrolling
   const {
@@ -62,6 +91,13 @@ export default function FlickrGallery({
     return data.pages.flatMap((page) => page.photos);
   }, [data]);
 
+  // Check if data is already cached on mount (don't animate if so)
+  useEffect(() => {
+    if (!isLoading && photos.length > 0) {
+      setShouldAnimatePhotos(false);
+    }
+  }, []); // Run only on mount
+
   // Update atoms when error or data changes
   useEffect(() => {
     if (error) {
@@ -79,29 +115,26 @@ export default function FlickrGallery({
 
   // Intersection Observer for infinite scrolling
   useEffect(() => {
-    const observer = observerRef.current;
-    if (!observer || !hasNextPage || isFetchingNextPage) return;
+    const observerElement = observerRef.current;
+    if (!observerElement) return;
 
     const intersectionObserver = new IntersectionObserver(
       (entries) => {
-        // When the observer element is visible and we have more pages
         if (entries[0]?.isIntersecting && hasNextPage && !isFetchingNextPage) {
           fetchNextPage();
         }
       },
       {
-        root: null, // Use viewport as root
-        rootMargin: "100px", // Trigger 100px before reaching the bottom
-        threshold: 0.1,
+        rootMargin: "400px",
       }
     );
 
-    intersectionObserver.observe(observer);
+    intersectionObserver.observe(observerElement);
 
     return () => {
       intersectionObserver.disconnect();
     };
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const handleClose = () => {
     onClose?.();
@@ -118,37 +151,42 @@ export default function FlickrGallery({
             </div>
           }
           position={position}
-          width="600px"
-          height="500px"
+          width={windowWidth}
+          height={windowHeight}
           zIndex={zIndex}
           onFocus={onFocus}
+          onDimensionChange={handleDimensionChange}
           initial={{
             opacity: 0,
             scale: originPosition ? 0 : 1,
           }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.8 }}
           onClose={handleClose}
         >
           <motion.div
             ref={galleryRef}
-            className="p-4 flex flex-wrap gap-2"
+            className="p-4 grid gap-2"
+            style={{
+              gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",
+            }}
             id="flickr-gallery-images"
             transition={{ duration: 0.2, delayChildren: 0.2 }}
           >
             {/* Initial loading state */}
             {isLoading && (
-              <div className="flex flex-col items-center justify-center py-20 w-full">
-                <span className="relative flex h-8 w-8 mb-4">
-                  <span className="animate-spin absolute inline-flex h-full w-full rounded-full border-4 border-solid border-black/70 border-r-transparent"></span>
-                </span>
-                <p className="text-black">Loading photos...</p>
+              <div
+                className="flex flex-col items-center justify-center py-20"
+                style={{ gridColumn: "1 / -1" }}
+              >
+                <Spinner label="Loading photos..." />
               </div>
             )}
 
             {/* Error state */}
             {error && (
-              <div className="flex flex-col items-center justify-center py-20">
+              <div
+                className="flex flex-col items-center justify-center py-20"
+                style={{ gridColumn: "1 / -1" }}
+              >
                 <p className="text-red-400 mb-2">Error loading photos</p>
                 <p className="text-white/70 text-sm">
                   {error instanceof Error
@@ -163,7 +201,9 @@ export default function FlickrGallery({
               photos.map((photo) => (
                 <motion.div
                   key={photo.id}
-                  initial={{ opacity: 0, scale: 0.8 }}
+                  initial={
+                    shouldAnimatePhotos ? { opacity: 0, scale: 0.8 } : false
+                  }
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{
@@ -174,13 +214,7 @@ export default function FlickrGallery({
                     scale: 1.05,
                     zIndex: 10,
                   }}
-                  className="overflow-hidden rounded-lg cursor-pointer"
-                  style={{
-                    flex: "0 0 auto",
-                    width: "calc(33.333% - 0.5rem)",
-                    minWidth: "150px",
-                    aspectRatio: "1",
-                  }}
+                  className="overflow-hidden rounded-lg cursor-pointer aspect-square"
                   onClick={() => setSelectedPhoto(photo)}
                 >
                   <img
@@ -193,14 +227,21 @@ export default function FlickrGallery({
               ))}
 
             {/* Intersection observer target - positioned at the end of the list */}
-            {hasNextPage && <div ref={observerRef} className="w-full h-5" />}
+            {hasNextPage && (
+              <div
+                ref={observerRef}
+                className="h-5"
+                style={{ gridColumn: "1 / -1" }}
+              />
+            )}
 
             {/* Loading indicator */}
             {isFetchingNextPage && (
-              <div className="w-full flex justify-center p-4">
-                <span className="relative flex h-6 w-6">
-                  <span className="animate-spin absolute inline-flex h-full w-full rounded-full border-2 border-solid border-black/70 border-r-transparent"></span>
-                </span>
+              <div
+                className="flex justify-center p-4"
+                style={{ gridColumn: "1 / -1" }}
+              >
+                <Spinner label="Loading more photos..." />
               </div>
             )}
           </motion.div>

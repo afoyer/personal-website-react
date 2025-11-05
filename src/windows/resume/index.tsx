@@ -4,6 +4,7 @@ import DraggableWindow, {
 } from "../../components/draggable-window";
 import { getUrl } from "aws-amplify/storage";
 import Spinner from "../../components/spinner";
+import { useState } from "react";
 
 function Resume(
   props: DraggableWindowProps & {
@@ -19,13 +20,10 @@ function Resume(
       {...props}
       title="Resume"
       id="resume-window"
-      variant="fullscreen"
       initial={{
         opacity: 0,
         scale: props.originPosition ? 0 : 1,
       }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.8 }}
     >
       <ResumeContent />
     </DraggableWindow>
@@ -33,6 +31,8 @@ function Resume(
 }
 
 function ResumeContent() {
+  const [iframeLoaded, setIframeLoaded] = useState(false);
+
   const {
     data: resumeUrl,
     isLoading: loadingResume,
@@ -46,18 +46,40 @@ function ResumeContent() {
       return result.url.toString();
     },
   });
+
   if (loadingResume) {
     return <Spinner />;
   } else if (resumeError) {
     return <div>Error loading resume {resumeError.message}</div>;
   } else {
-    return <iframe src={resumeUrl + "#toolbar=0"} width="100%" height="100%" />;
+    return (
+      <div style={{ width: "100%", height: "100%", position: "relative" }}>
+        {!iframeLoaded && (
+          <div
+            style={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+            }}
+          >
+            <Spinner />
+          </div>
+        )}
+        <iframe
+          src={resumeUrl + "#toolbar=0"}
+          width="100%"
+          height="100%"
+          onLoad={() => setIframeLoaded(true)}
+          style={{
+            opacity: iframeLoaded ? 1 : 0,
+            transition: "opacity 0.3s ease-in-out",
+            border: "none",
+          }}
+        />
+      </div>
+    );
   }
-  return (
-    <div>
-      <h1>Projects</h1>
-    </div>
-  );
 }
 
 export default Resume;

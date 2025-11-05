@@ -7,6 +7,17 @@ export const globalCountAtom = atom(0);
 export const isLoadingAtom = atom(false);
 export const sidebarOpenAtom = atom(false);
 
+// Window dimensions storage (persisted in localStorage)
+export interface WindowDimensions {
+  width: number;
+  height: number;
+}
+
+export const windowDimensionsAtom = atomWithStorage<Record<string, WindowDimensions>>(
+  'window-dimensions',
+  {}
+);
+
 // Derived atoms
 export const isDarkModeAtom = atom(get => get(themeAtom) === 'dark');
 
@@ -34,3 +45,22 @@ export const toggleSidebarAtom = atom(null, (get, set) => {
   const currentState = get(sidebarOpenAtom);
   set(sidebarOpenAtom, !currentState);
 });
+
+// Window dimension actions
+export const updateWindowDimensionsAtom = atom(
+  null,
+  (get, set, { windowId, dimensions }: { windowId: string; dimensions: WindowDimensions }) => {
+    const current = get(windowDimensionsAtom);
+    set(windowDimensionsAtom, {
+      ...current,
+      [windowId]: dimensions,
+    });
+  }
+);
+
+export const getWindowDimensionsAtom = atom(
+  (get) => (windowId: string): WindowDimensions | undefined => {
+    const dimensions = get(windowDimensionsAtom);
+    return dimensions[windowId];
+  }
+);

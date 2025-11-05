@@ -1,8 +1,9 @@
-import { motion } from "motion/react";
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical, X } from "lucide-react";
 import { ReactNode, useState, useRef, useEffect } from "react";
+import { CONTAINER_PADDING } from "../../App";
+import "./draggable-window.css";
 
 export interface DraggableWindowProps {
   position?: { x: number; y: number };
@@ -13,12 +14,10 @@ export interface DraggableWindowProps {
   className?: string;
   contentClassName?: string;
   initial?: { opacity?: number; y?: number; scale?: number; x?: number };
-  animate?: { opacity?: number; y?: number; scale?: number; x?: number };
-  exit?: { opacity?: number; scale?: number };
   zIndex?: number;
   onFocus?: () => void;
   onClose?: () => void;
-  variant?: "normal" | "fullscreen";
+  onDimensionChange?: (dimensions: { width: number; height: number }) => void;
 }
 
 export interface DraggableWindowContentProps extends DraggableWindowProps {
@@ -49,19 +48,14 @@ export default function DraggableWindow({
   className = "",
   contentClassName = "",
   initial = { opacity: 0 },
-  animate = { opacity: 1 },
-  exit = { opacity: 0 },
   zIndex = 100,
   onFocus,
   onClose,
-  variant = "normal",
+  onDimensionChange,
 }: DraggableWindowContentProps) {
-  const isFullscreen = variant === "fullscreen";
-
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({
       id,
-      disabled: isFullscreen,
     });
 
   const [dimensions, setDimensions] = useState({
@@ -69,8 +63,8 @@ export default function DraggableWindow({
     height: parseInt(height) || 500,
   });
 
-  const [hasAnimated, setHasAnimated] = useState(false);
   const [positionOffset, setPositionOffset] = useState({ x: 0, y: 0 });
+  const [isAnimatingIn, setIsAnimatingIn] = useState(true);
   const [resizeState, setResizeState] = useState<{
     isResizing: boolean;
     handle: ResizeHandle | null;
@@ -83,13 +77,53 @@ export default function DraggableWindow({
     startPositionOffset: { x: number; y: number };
   } | null>(null);
   const windowRef = useRef<HTMLDivElement>(null);
+  const hasInitialized = useRef(false);
 
-  // Parse initial width/height on mount
+  // Parse initial width/height on mount and constrain to viewport
+  // Only run once on mount, not when props change
   useEffect(() => {
+    if (hasInitialized.current) return;
+
     const w = parseInt(width) || 600;
     const h = parseInt(height) || 500;
-    setDimensions({ width: w, height: h });
+
+    // Get viewport dimensions and account for container padding
+    const maxWidth = window.innerWidth - CONTAINER_PADDING * 2; // padding left + padding right
+    const maxHeight = window.innerHeight - CONTAINER_PADDING * 2; // padding top + padding bottom
+
+    // Constrain dimensions to fit within viewport
+    const constrainedWidth = Math.min(w, maxWidth);
+    const constrainedHeight = Math.min(h, maxHeight);
+
+    setDimensions({ width: constrainedWidth, height: constrainedHeight });
+    hasInitialized.current = true;
   }, [width, height]);
+
+  // Remove animation class after animation completes
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsAnimatingIn(false);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Handle window resize to keep draggable window within bounds
+  useEffect(() => {
+    const handleResize = () => {
+      setDimensions((prevDimensions) => {
+        const maxWidth = window.innerWidth - CONTAINER_PADDING * 2; // padding left + padding right
+        const maxHeight = window.innerHeight - CONTAINER_PADDING * 2; // padding top + padding bottom
+
+        return {
+          width: Math.min(prevDimensions.width, maxWidth),
+          height: Math.min(prevDimensions.height, maxHeight),
+        };
+      });
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const handleResizeStart = (e: React.MouseEvent, handle: ResizeHandle) => {
     e.preventDefault();
@@ -125,28 +159,92 @@ export default function DraggableWindow({
       let newHeight = resizeState.startHeight;
       let newPositionOffset = { ...resizeState.startPositionOffset };
 
+      // Get current window bounds
+      const currentLeft = position.x + resizeState.startPositionOffset.x;
+      const currentTop = position.y + resizeState.startPositionOffset.y;
+
+      // Account for main container padding
+      // Positions are relative to container, so we need the container dimensions
+      // Container has CONTAINER_PADDING on each side
+      const containerWidth = window.innerWidth - CONTAINER_PADDING * 2; // viewport - padding left - padding right
+      const containerHeight = window.innerHeight - CONTAINER_PADDING * 2; // viewport - padding top - padding bottom
+
       // Handle horizontal resizing
       if (handle.includes("e")) {
-        // Right edge
-        newWidth = Math.max(minWidth, resizeState.startWidth + deltaX);
+        // Right edge - constrain to container width
+        const maxWidth = Math.max(minWidth, containerWidth - currentLeft);
+        newWidth = Math.max(
+          minWidth,
+          Math.min(maxWidth, resizeState.startWidth + deltaX)
+        );
       } else if (handle.includes("w")) {
-        // Left edge - adjust width and position
-        newWidth = Math.max(minWidth, resizeState.startWidth - deltaX);
-        newPositionOffset.x = resizeState.startPositionOffset.x + deltaX;
+        // Left edge - constrain to not go past left boundary (0) and right viewport edge
+        // deltaX is positive when dragging right (shrinking), negative when dragging left (expanding)
+        // Constrain so that (currentLeft + deltaX) >= 0
+        const constrainedDeltaX = Math.max(deltaX, -currentLeft);
+        let potentialWidth = resizeState.startWidth - constrainedDeltaX;
+
+        // Ensure width respects minimum
+        potentialWidth = Math.max(minWidth, potentialWidth);
+
+        // Calculate where the left edge would be after this resize
+        const actualDelta = resizeState.startWidth - potentialWidth;
+        const newLeft =
+          position.x + resizeState.startPositionOffset.x + actualDelta;
+
+        // Ensure the right edge doesn't extend beyond container width
+        const rightEdge = newLeft + potentialWidth;
+        if (rightEdge > containerWidth) {
+          potentialWidth = Math.max(minWidth, containerWidth - newLeft);
+        }
+
+        newWidth = potentialWidth;
+        const finalDelta = resizeState.startWidth - newWidth;
+        newPositionOffset.x = resizeState.startPositionOffset.x + finalDelta;
       }
 
       // Handle vertical resizing
       if (handle.includes("s")) {
-        // Bottom edge
-        newHeight = Math.max(minHeight, resizeState.startHeight + deltaY);
+        // Bottom edge - constrain to viewport height
+        const maxHeight = Math.max(minHeight, containerHeight - currentTop);
+        newHeight = Math.max(
+          minHeight,
+          Math.min(maxHeight, resizeState.startHeight + deltaY)
+        );
       } else if (handle.includes("n")) {
-        // Top edge - adjust height and position
-        newHeight = Math.max(minHeight, resizeState.startHeight - deltaY);
-        newPositionOffset.y = resizeState.startPositionOffset.y + deltaY;
+        // Top edge - constrain to not go past top boundary (0) and bottom viewport edge
+        // deltaY is positive when dragging down (shrinking), negative when dragging up (expanding)
+        // Constrain so that (currentTop + deltaY) >= 0
+        const constrainedDeltaY = Math.max(deltaY, -currentTop);
+        let potentialHeight = resizeState.startHeight - constrainedDeltaY;
+
+        // Ensure height respects minimum
+        potentialHeight = Math.max(minHeight, potentialHeight);
+
+        // Calculate where the top edge would be after this resize
+        const actualDelta = resizeState.startHeight - potentialHeight;
+        const newTop =
+          position.y + resizeState.startPositionOffset.y + actualDelta;
+
+        // Ensure the bottom edge doesn't extend beyond container height
+        const bottomEdge = newTop + potentialHeight;
+        if (bottomEdge > containerHeight) {
+          potentialHeight = Math.max(minHeight, containerHeight - newTop);
+        }
+
+        newHeight = potentialHeight;
+        const finalDelta = resizeState.startHeight - newHeight;
+        newPositionOffset.y = resizeState.startPositionOffset.y + finalDelta;
       }
 
-      setDimensions({ width: newWidth, height: newHeight });
+      const newDimensions = { width: newWidth, height: newHeight };
+      setDimensions(newDimensions);
       setPositionOffset(newPositionOffset);
+
+      // Call onDimensionChange during resize to update constraints in real-time
+      if (onDimensionChange) {
+        onDimensionChange(newDimensions);
+      }
     };
 
     const handleMouseUp = () => {
@@ -160,7 +258,7 @@ export default function DraggableWindow({
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseup", handleMouseUp);
     };
-  }, [resizeState, minWidth, minHeight]);
+  }, [resizeState, minWidth, minHeight, onDimensionChange, dimensions]);
 
   const handleWindowClick = (_e: React.MouseEvent) => {
     // Don't trigger focus if we're currently resizing
@@ -179,27 +277,16 @@ export default function DraggableWindow({
     ? CSS.Translate.toString(transform)
     : undefined;
 
-  const style = isFullscreen
-    ? ({
-        position: "fixed" as const,
-        width: "calc(100vw - 64px)",
-        height: "calc(100vh - 64px)",
-        borderRadius: "16px",
-        left: "32px",
-        top: "16px",
-        zIndex: zIndex,
-        transformOrigin: "center",
-      } as React.CSSProperties)
-    : ({
-        transform: dragTransform,
-        position: "absolute" as const,
-        left: position.x + positionOffset.x,
-        top: position.y + positionOffset.y,
-        width: `${dimensions.width}px`,
-        height: `${dimensions.height}px`,
-        zIndex: zIndex,
-        transformOrigin: "center",
-      } as React.CSSProperties);
+  const style = {
+    transform: dragTransform,
+    position: "absolute" as const,
+    left: position.x + positionOffset.x,
+    top: position.y + positionOffset.y,
+    width: `${dimensions.width}px`,
+    height: `${dimensions.height}px`,
+    zIndex: zIndex,
+    transformOrigin: "center",
+  } as React.CSSProperties;
 
   const getResizeCursor = (handle: ResizeHandle) => {
     if (handle === "n" || handle === "s") return "ns-resize";
@@ -209,83 +296,40 @@ export default function DraggableWindow({
     return "default";
   };
 
-  const ResizeHandle = ({
-    handle,
-    className,
-  }: {
-    handle: ResizeHandle;
-    className: string;
-  }) => (
+  // Build animation class based on initial prop
+  let animationClass = "";
+  if (isAnimatingIn) {
+    if (initial.scale === 0) {
+      animationClass = "animate-scale-in";
+    } else if (initial.opacity === 0) {
+      animationClass = "animate-fade-in";
+    }
+  }
+
+  return (
     <div
-      onMouseDown={(e) => handleResizeStart(e, handle)}
-      onClick={(e) => e.stopPropagation()}
-      className={`absolute ${className} z-10 ${getResizeCursor(handle)} ${
-        resizeState?.isResizing ? "bg-blue-200/50" : "hover:bg-blue-100/30"
-      } transition-colors`}
-      style={{
-        cursor: getResizeCursor(handle),
+      id={id}
+      ref={(node: HTMLDivElement | null) => {
+        setNodeRef(node);
+        if (node) {
+          windowRef.current = node;
+        }
       }}
-    />
-  );
-
-  const commonProps = {
-    ref: (node: HTMLDivElement | null) => {
-      setNodeRef(node);
-      if (node) {
-        windowRef.current = node;
-      }
-    },
-    style,
-    onClick: handleWindowClick,
-    onMouseDown: (_e: React.MouseEvent) => {
-      if (onFocus && !resizeState?.isResizing) {
-        onFocus();
-      }
-    },
-    className: `pointer-events-auto bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm shadow-2xl ${
-      isFullscreen ? "" : "rounded-lg"
-    } border border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden ${className}`,
-  };
-
-  const content = (
-    <>
-      {/* Resize Handles - Only show in normal mode */}
-      {!isFullscreen && (
-        <>
-          {/* Resize Handles - Corners */}
-          <ResizeHandle
-            handle="nw"
-            className="top-0 left-0 w-4 h-4 -ml-1 -mt-1 rounded-tl-lg"
-          />
-          <ResizeHandle
-            handle="ne"
-            className="top-0 right-0 w-4 h-4 -mr-1 -mt-1 rounded-tr-lg"
-          />
-          <ResizeHandle
-            handle="sw"
-            className="bottom-0 left-0 w-4 h-4 -ml-1 -mb-1 rounded-bl-lg"
-          />
-          <ResizeHandle
-            handle="se"
-            className="bottom-0 right-0 w-4 h-4 -mr-1 -mb-1 rounded-br-lg"
-          />
-
-          {/* Resize Handles - Edges */}
-          <ResizeHandle handle="n" className="top-0 left-4 right-4 h-2 -mt-1" />
-          <ResizeHandle
-            handle="s"
-            className="bottom-0 left-4 right-4 h-2 -mb-1"
-          />
-          <ResizeHandle
-            handle="e"
-            className="right-0 top-4 bottom-4 w-2 -mr-1"
-          />
-          <ResizeHandle
-            handle="w"
-            className="left-0 top-4 bottom-4 w-2 -ml-1"
-          />
-        </>
-      )}
+      style={style}
+      onClick={handleWindowClick}
+      onMouseDown={(_e: React.MouseEvent) => {
+        if (onFocus && !resizeState?.isResizing) {
+          onFocus();
+        }
+      }}
+      className={`pointer-events-auto bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm shadow-2xl rounded-lg border border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden ${animationClass} ${className}`}
+    >
+      {/* Resize Handles */}
+      <ResizeHandleSet
+        handleResizeStart={handleResizeStart}
+        getResizeCursor={getResizeCursor}
+        resizeState={resizeState}
+      />
 
       {/* Window Title Bar - Drag Handle */}
       <div
@@ -296,23 +340,17 @@ export default function DraggableWindow({
         `}
       >
         <div
-          {...(!isFullscreen && !resizeState?.isResizing
-            ? { ...listeners, ...attributes }
-            : {})}
+          {...(!resizeState?.isResizing ? { ...listeners, ...attributes } : {})}
           onMouseDown={() => {
             if (onFocus && !resizeState?.isResizing) {
               onFocus();
             }
           }}
-          className={`flex items-center gap-2 flex-1 ${
-            !isFullscreen
-              ? `cursor-move ${isDragging ? "cursor-grabbing" : ""}`
-              : ""
+          className={`flex items-center gap-2 flex-1 cursor-move ${
+            isDragging ? "cursor-grabbing" : ""
           }`}
         >
-          {!isFullscreen && (
-            <GripVertical className="w-5 h-5 text-gray-400 dark:text-gray-500" />
-          )}
+          <GripVertical className="w-5 h-5 text-gray-400 dark:text-gray-500" />
           <h3 className="font-semibold text-gray-800 dark:text-gray-100 text-sm">
             {title}
           </h3>
@@ -332,28 +370,80 @@ export default function DraggableWindow({
       </div>
 
       {/* Window Content */}
-      <div className={`flex-1 overflow-auto relative ${contentClassName}`}>
+      <div
+        className={`flex-1 overflow-auto relative window-content-scrollable ${contentClassName}`}
+      >
         {children}
       </div>
-    </>
+    </div>
   );
+}
 
-  // Use motion.div only for initial animation, then switch to regular div
-  return hasAnimated || isDragging ? (
-    <div {...commonProps}>{content}</div>
-  ) : (
-    <motion.div
-      {...commonProps}
-      initial={initial}
-      animate={animate}
-      exit={exit}
-      transition={{
-        duration: 0.3,
-        ease: "easeOut",
+function ResizeHandleSet({
+  handleResizeStart,
+  getResizeCursor,
+  resizeState,
+}: {
+  handleResizeStart: (e: React.MouseEvent, handle: ResizeHandle) => void;
+  getResizeCursor: (handle: ResizeHandle) => string;
+  resizeState:
+    | {
+        isResizing: boolean;
+        handle: ResizeHandle | null;
+        startX: number;
+        startY: number;
+        startWidth: number;
+        startHeight: number;
+        startLeft: number;
+        startTop: number;
+        startPositionOffset: { x: number; y: number };
+      }
+    | null
+    | undefined;
+}) {
+  const ResizeHandle = ({
+    handle,
+    className,
+  }: {
+    handle: ResizeHandle;
+    className: string;
+  }) => (
+    <div
+      onMouseDown={(e) => handleResizeStart(e, handle)}
+      onClick={(e) => e.stopPropagation()}
+      className={`absolute ${className} z-10 ${getResizeCursor(handle)} ${
+        resizeState?.isResizing ? "bg-blue-200/50" : "hover:bg-blue-100/30"
+      } transition-colors`}
+      style={{
+        cursor: getResizeCursor(handle),
       }}
-      onAnimationComplete={() => setHasAnimated(true)}
-    >
-      {content}
-    </motion.div>
+    />
+  );
+  return (
+    <>
+      {/* Resize Handles - Corners */}
+      <ResizeHandle
+        handle="nw"
+        className="top-0 left-0 w-4 h-4 -ml-1 -mt-1 rounded-tl-lg"
+      />
+      <ResizeHandle
+        handle="ne"
+        className="top-0 right-0 w-4 h-4 -mr-1 -mt-1 rounded-tr-lg"
+      />
+      <ResizeHandle
+        handle="sw"
+        className="bottom-0 left-0 w-4 h-4 -ml-1 -mb-1 rounded-bl-lg"
+      />
+      <ResizeHandle
+        handle="se"
+        className="bottom-0 right-0 w-4 h-4 -mr-1 -mb-1 rounded-br-lg"
+      />
+
+      {/* Resize Handles - Edges */}
+      <ResizeHandle handle="n" className="top-0 left-4 right-4 h-2 -mt-1" />
+      <ResizeHandle handle="s" className="bottom-0 left-4 right-4 h-2 -mb-1" />
+      <ResizeHandle handle="e" className="right-0 top-4 bottom-4 w-2 -mr-1" />
+      <ResizeHandle handle="w" className="left-0 top-4 bottom-4 w-2 -ml-1" />
+    </>
   );
 }
