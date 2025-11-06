@@ -2,16 +2,114 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <link href="/dist/index.css" rel="stylesheet" />
+    <link rel="icon" type="image/svg+xml" href="/dist/ton.svg" />
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
     />
-    <title>React Amplify Boilerplate</title>
+    <title>Aymeric F</title>
+    <style>
+      #initial-loader {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #ffffff;
+        z-index: 9999;
+        transition: opacity 0.3s ease-out;
+      }
+      #initial-loader.hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
+      #initial-loader::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(
+          circle at center,
+          rgba(0, 0, 0, 0.03) 0%,
+          rgba(0, 0, 0, 0) 70%
+        );
+        animation: pulse 2s ease-in-out infinite;
+      }
+      .logo-container {
+        position: relative;
+        width: 260px;
+        height: 158px;
+        z-index: 1;
+      }
+      .logo-container img {
+        width: 260px;
+        height: 158px;
+        display: block;
+        animation: logoFloat 2s ease-in-out infinite;
+        filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.1));
+      }
+      @keyframes logoFloat {
+        0%,
+        100% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-8px);
+        }
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+      }
+      @media (prefers-color-scheme: dark) {
+        #initial-loader {
+          background: #111827;
+        }
+        #initial-loader::before {
+          background: radial-gradient(
+            circle at center,
+            rgba(255, 255, 255, 0.05) 0%,
+            rgba(255, 255, 255, 0) 70%
+          );
+        }
+        .logo-container img {
+          filter: drop-shadow(0 4px 12px rgba(255, 255, 255, 0.15)) invert(1);
+        }
+      }
+    </style>
   </head>
   <body>
+    <div id="initial-loader">
+      <div class="logo-container">
+        <img
+          src="/ton.svg"
+          alt="Loading"
+          width="260"
+          height="158"
+          fetchpriority="high"
+        />
+      </div>
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      // Hide loader once React mounts
+      const observer = new MutationObserver(() => {
+        const root = document.getElementById("root");
+        if (root && root.children.length > 0) {
+          const loader = document.getElementById("initial-loader");
+          if (loader) {
+            loader.classList.add("hidden");
+            setTimeout(() => loader.remove(), 100);
+          }
+          observer.disconnect();
+        }
+      });
+      observer.observe(document.getElementById("root"), { childList: true });
+    </script>
   </body>
 </html>
