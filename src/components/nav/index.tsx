@@ -8,6 +8,7 @@ import "./nav.css";
 import NavButton from "./NavButton";
 import NavFan, { NavFanItem } from "./nav-fan";
 import { WindowKey } from "../../pages/Home";
+import { useTheme } from "../../jotai";
 
 interface NavProps {
   buttonRef?: RefObject<HTMLButtonElement | null>;
@@ -59,6 +60,7 @@ export default function Nav({ buttonRef, isAllClosed, openWindow }: NavProps) {
     mouseX.set(x);
     mouseY.set(y);
   };
+  const { theme } = useTheme();
 
   return (
     <motion.div
@@ -130,12 +132,18 @@ export default function Nav({ buttonRef, isAllClosed, openWindow }: NavProps) {
         </NavButton>
         <motion.svg
           initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="text-white/95 m-auto relative z-10 cursor-pointer"
+          animate={{
+            opacity: 1,
+            y: 0,
+            fill: theme === "dark" ? "rgba(255,255,255,1)" : "rgba(0,0,0,1)",
+          }}
+          transition={{ duration: 0.2 }}
+          className="m-auto relative z-10 cursor-pointer"
           style={{ height: "1.125rem", width: "auto" }}
+          whileHover={{
+            fill: theme === "dark" ? "rgba(0,0,0,1)" : "rgba(255,255,255,1)",
+          }}
           viewBox="0 0 259.57 158.05"
-          fill="currentColor"
           onClick={() => toggleTheme()}
         >
           <polyline points="104.42 1.11 259.57 0 225.92 29.63 136.84 29.63 136.84 69.13 179.84 69.13 157.06 98.77 137.1 98.77 137.1 157.19 104.42 157.19" />

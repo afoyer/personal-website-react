@@ -29,7 +29,10 @@ export function ArcMenu({
         )}
       </AnimatePresence>
 
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+      <motion.div
+        transition={{ delayChildren: 0.1 }}
+        className="absolute top-1/2 left-[-20px] -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+      >
         <AnimatePresence>
           {showFan &&
             items.map((item, index) => {
@@ -82,7 +85,7 @@ export function ArcMenu({
               );
             })}
         </AnimatePresence>
-      </div>
+      </motion.div>
     </>
   );
 }
