@@ -21,6 +21,8 @@ interface FlickrGalleryProps {
   onFocus?: () => void;
   onClose?: () => void;
   originPosition?: { x: number; y: number } | null;
+  initialDimensions?: { width: number; height: number };
+  onDimensionChange?: (dimensions: { width: number; height: number }) => void;
 }
 
 export default function FlickrGallery({
@@ -29,6 +31,8 @@ export default function FlickrGallery({
   onFocus,
   onClose,
   originPosition,
+  initialDimensions,
+  onDimensionChange,
 }: FlickrGalleryProps) {
   const [selectedPhoto, setSelectedPhoto] = useState<FlickrPhoto | null>(null);
   const galleryRef = useRef<HTMLDivElement>(null);
@@ -41,7 +45,10 @@ export default function FlickrGallery({
   const [getWindowDimensions] = useAtom(getWindowDimensionsAtom);
   const [, updateWindowDimensions] = useAtom(updateWindowDimensionsAtom);
 
-  const savedDimensions = getWindowDimensions("flickr-gallery-window");
+  // Use initialDimensions (from localStorage via useDraggableWindows) if provided
+  // Otherwise fall back to jotai state
+  const savedDimensions =
+    initialDimensions || getWindowDimensions("flickr-gallery-window");
   const windowWidth = savedDimensions?.width
     ? `${savedDimensions.width}px`
     : "600px";
@@ -53,6 +60,12 @@ export default function FlickrGallery({
     width: number;
     height: number;
   }) => {
+    // Call the new onDimensionChange prop if provided
+    if (onDimensionChange) {
+      onDimensionChange(dimensions);
+    }
+
+    // Also update jotai state for backward compatibility
     updateWindowDimensions({
       windowId: "flickr-gallery-window",
       dimensions,

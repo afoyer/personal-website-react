@@ -18,6 +18,7 @@ export interface DraggableWindowProps {
   onFocus?: () => void;
   onClose?: () => void;
   onDimensionChange?: (dimensions: { width: number; height: number }) => void;
+  initialDimensions?: { width: number; height: number };
 }
 
 export interface DraggableWindowContentProps extends DraggableWindowProps {
@@ -52,15 +53,25 @@ export default function DraggableWindow({
   onFocus,
   onClose,
   onDimensionChange,
+  initialDimensions,
 }: DraggableWindowContentProps) {
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({
       id,
     });
 
-  const [dimensions, setDimensions] = useState({
-    width: parseInt(width) || 600,
-    height: parseInt(height) || 500,
+  const [dimensions, setDimensions] = useState(() => {
+    // Use initialDimensions if provided (from localStorage), otherwise use props
+    if (initialDimensions) {
+      return {
+        width: initialDimensions.width,
+        height: initialDimensions.height,
+      };
+    }
+    return {
+      width: parseInt(width as string) || 600,
+      height: parseInt(height as string) || 500,
+    };
   });
 
   const [positionOffset, setPositionOffset] = useState({ x: 0, y: 0 });
@@ -84,20 +95,33 @@ export default function DraggableWindow({
   useEffect(() => {
     if (hasInitialized.current) return;
 
-    const w = parseInt(width) || 600;
-    const h = parseInt(height) || 500;
+    // If initialDimensions were provided, we already set them in useState
+    if (!initialDimensions) {
+      const w = parseInt(width as string) || 600;
+      const h = parseInt(height as string) || 500;
 
-    // Get viewport dimensions and account for container padding
-    const maxWidth = window.innerWidth - CONTAINER_PADDING * 2; // padding left + padding right
-    const maxHeight = window.innerHeight - CONTAINER_PADDING * 2; // padding top + padding bottom
+      // Get viewport dimensions and account for container padding
+      const maxWidth = window.innerWidth - CONTAINER_PADDING * 2; // padding left + padding right
+      const maxHeight = window.innerHeight - CONTAINER_PADDING * 2; // padding top + padding bottom
 
-    // Constrain dimensions to fit within viewport
-    const constrainedWidth = Math.min(w, maxWidth);
-    const constrainedHeight = Math.min(h, maxHeight);
+      // Constrain dimensions to fit within viewport
+      const constrainedWidth = Math.min(w, maxWidth);
+      const constrainedHeight = Math.min(h, maxHeight);
 
-    setDimensions({ width: constrainedWidth, height: constrainedHeight });
+      setDimensions({ width: constrainedWidth, height: constrainedHeight });
+    } else {
+      // Still constrain initialDimensions to viewport
+      const maxWidth = window.innerWidth - CONTAINER_PADDING * 2;
+      const maxHeight = window.innerHeight - CONTAINER_PADDING * 2;
+
+      setDimensions((prev) => ({
+        width: Math.min(prev.width, maxWidth),
+        height: Math.min(prev.height, maxHeight),
+      }));
+    }
+
     hasInitialized.current = true;
-  }, [width, height]);
+  }, [width, height, initialDimensions]);
 
   // Remove animation class after animation completes
   useEffect(() => {
@@ -242,6 +266,7 @@ export default function DraggableWindow({
       setPositionOffset(newPositionOffset);
 
       // Call onDimensionChange during resize to update constraints in real-time
+      // and save to localStorage
       if (onDimensionChange) {
         onDimensionChange(newDimensions);
       }

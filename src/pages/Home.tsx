@@ -48,7 +48,7 @@ function Home() {
   const buttonRef = useRef<HTMLButtonElement>(null);
 
   // Track window dimensions for fullscreen windows
-  const [windowDimensions, setWindowDimensions] = useState({
+  const [viewportDimensions, setViewportDimensions] = useState({
     width: typeof window !== "undefined" ? window.innerWidth : 1200,
     height: typeof window !== "undefined" ? window.innerHeight : 800,
   });
@@ -56,7 +56,7 @@ function Home() {
   // Update dimensions on window resize
   useEffect(() => {
     const handleResize = () => {
-      setWindowDimensions({
+      setViewportDimensions({
         width: window.innerWidth,
         height: window.innerHeight - CONTAINER_PADDING * 2,
       });
@@ -88,70 +88,39 @@ function Home() {
     })
   );
 
-  // Calculate final position for flickr gallery
-  const flickrFinalPosition = useMemo(
+  // Fullscreen windows: 16px padding on all sides (handled by container padding)
+  // Position at 0,0 to fill container, which already has 16px padding from viewport
+
+  const baseFinalPosition = useMemo(
     () => ({
       x: 16,
       y: 16,
     }),
     []
   );
-  const spotifyFinalPosition = useMemo(
-    () => ({
-      x: 16,
-      y: 32,
-    }),
-    []
-  );
-  // Fullscreen windows: 16px padding on all sides (handled by container padding)
-  // Position at 0,0 to fill container, which already has 16px padding from viewport
-  const resumeFinalPosition = useMemo(
-    () => ({
-      x: 0,
-      y: 0,
-    }),
-    []
-  );
-  const amazonFinalPosition = useMemo(
-    () => ({
-      x: 0,
-      y: 0,
-    }),
-    []
-  );
-  const radiosityFinalPosition = useMemo(
-    () => ({
-      x: 16,
-      y: 80,
-    }),
-    []
-  );
-  const pantonifyFinalPosition = useMemo(
-    () => ({
-      x: 0,
-      y: 0,
-    }),
-    []
-  );
-  const lightFinalPosition = useMemo(
-    () => ({
-      x: 0,
-      y: 0,
-    }),
-    []
-  );
+  const baseLocation = {
+    isOpen: false,
+    originPosition: null,
+    currentPosition: baseFinalPosition,
+  };
 
   // Manage draggable window positions and z-indices
-  const { handleDragEnd, bringWindowToFront, getWindowZIndex, zIndices } =
-    useDraggableWindows({
-      "flickr-gallery-window": flickrFinalPosition,
-      "spotify-player-window": spotifyFinalPosition,
-      "resume-window": resumeFinalPosition,
-      "amazon-window": amazonFinalPosition,
-      "radiosity-window": radiosityFinalPosition,
-      "pantonify-window": pantonifyFinalPosition,
-      "light-window": lightFinalPosition,
-    });
+  const {
+    handleDragEnd,
+    bringWindowToFront,
+    getWindowZIndex,
+    zIndices,
+    setWindowDimensions,
+    getWindowDimensions,
+  } = useDraggableWindows({
+    "flickr-gallery-window": baseFinalPosition,
+    "spotify-player-window": baseFinalPosition,
+    "resume-window": baseFinalPosition,
+    "amazon-window": baseFinalPosition,
+    "radiosity-window": baseFinalPosition,
+    "pantonify-window": baseFinalPosition,
+    "light-window": baseFinalPosition,
+  });
 
   // Get Flickr gallery state from atoms
   const { flickrError } = useFlickrGallery();
@@ -159,51 +128,23 @@ function Home() {
   // Use window animation hook for all windows
   const { windows, openWindow, closeWindow, updatePosition } =
     useWindowAnimations({
-      "flickr-gallery-window": { finalPosition: flickrFinalPosition },
-      "spotify-player-window": { finalPosition: spotifyFinalPosition },
-      "resume-window": { finalPosition: resumeFinalPosition },
-      "amazon-window": { finalPosition: amazonFinalPosition },
-      "radiosity-window": { finalPosition: radiosityFinalPosition },
-      "pantonify-window": { finalPosition: pantonifyFinalPosition },
-      "light-window": { finalPosition: lightFinalPosition },
+      "flickr-gallery-window": { finalPosition: baseFinalPosition },
+      "spotify-player-window": { finalPosition: baseFinalPosition },
+      "resume-window": { finalPosition: baseFinalPosition },
+      "amazon-window": { finalPosition: baseFinalPosition },
+      "radiosity-window": { finalPosition: baseFinalPosition },
+      "pantonify-window": { finalPosition: baseFinalPosition },
+      "light-window": { finalPosition: baseFinalPosition },
     });
 
   // Extract window states for easier access
-  const flickrWindow = windows["flickr-gallery-window"] || {
-    isOpen: false,
-    originPosition: null,
-    currentPosition: flickrFinalPosition,
-  };
-  const spotifyWindow = windows["spotify-player-window"] || {
-    isOpen: false,
-    originPosition: null,
-    currentPosition: spotifyFinalPosition,
-  };
-  const resumeWindow = windows["resume-window"] || {
-    isOpen: false,
-    originPosition: null,
-    currentPosition: resumeFinalPosition,
-  };
-  const amazonWindow = windows["amazon-window"] || {
-    isOpen: false,
-    originPosition: null,
-    currentPosition: amazonFinalPosition,
-  };
-  const radiosityWindow = windows["radiosity-window"] || {
-    isOpen: false,
-    originPosition: null,
-    currentPosition: radiosityFinalPosition,
-  };
-  const pantonifyWindow = windows["pantonify-window"] || {
-    isOpen: false,
-    originPosition: null,
-    currentPosition: pantonifyFinalPosition,
-  };
-  const lightWindow = windows["light-window"] || {
-    isOpen: false,
-    originPosition: null,
-    currentPosition: lightFinalPosition,
-  };
+  const flickrWindow = windows["flickr-gallery-window"] || baseLocation;
+  const spotifyWindow = windows["spotify-player-window"] || baseLocation;
+  const resumeWindow = windows["resume-window"] || baseLocation;
+  const amazonWindow = windows["amazon-window"] || baseLocation;
+  const radiosityWindow = windows["radiosity-window"] || baseLocation;
+  const pantonifyWindow = windows["pantonify-window"] || baseLocation;
+  const lightWindow = windows["light-window"] || baseLocation;
   const isAllClosed =
     !flickrWindow.isOpen &&
     !spotifyWindow.isOpen &&
@@ -239,6 +180,15 @@ function Home() {
       closeWindow(windowKey);
     },
     [closeWindow]
+  );
+
+  // Handler to save window dimensions to localStorage
+  const handleDimensionChange = useCallback(
+    (windowKey: WindowKey) =>
+      (dimensions: { width: number; height: number }) => {
+        setWindowDimensions(windowKey, dimensions);
+      },
+    [setWindowDimensions]
   );
 
   // Custom drag end handler that updates both systems
@@ -312,6 +262,8 @@ function Home() {
             onFocus={() => handleWindowFocus("flickr-gallery-window")}
             onClose={() => closeWindowByKey("flickr-gallery-window")}
             originPosition={flickrWindow.originPosition}
+            initialDimensions={getWindowDimensions("flickr-gallery-window")}
+            onDimensionChange={handleDimensionChange("flickr-gallery-window")}
           />
         )}
 
@@ -323,6 +275,8 @@ function Home() {
             onFocus={() => handleWindowFocus("spotify-player-window")}
             onClose={() => closeWindowByKey("spotify-player-window")}
             originPosition={spotifyWindow.originPosition || undefined}
+            initialDimensions={getWindowDimensions("spotify-player-window")}
+            onDimensionChange={handleDimensionChange("spotify-player-window")}
           />
         )}
 
@@ -341,8 +295,8 @@ function Home() {
             onFocus={() => handleWindowFocus("resume-window")}
             onClose={() => closeWindowByKey("resume-window")}
             originPosition={resumeWindow.originPosition}
-            width={`${windowDimensions.width}px`}
-            height={`${windowDimensions.height}px`}
+            initialDimensions={getWindowDimensions("resume-window")}
+            onDimensionChange={handleDimensionChange("resume-window")}
           />
         )}
 
@@ -354,6 +308,8 @@ function Home() {
             onFocus={() => handleWindowFocus("amazon-window")}
             onClose={() => closeWindowByKey("amazon-window")}
             originPosition={amazonWindow.originPosition}
+            initialDimensions={getWindowDimensions("amazon-window")}
+            onDimensionChange={handleDimensionChange("amazon-window")}
           />
         )}
 
@@ -365,6 +321,8 @@ function Home() {
             onFocus={() => handleWindowFocus("radiosity-window")}
             onClose={() => closeWindowByKey("radiosity-window")}
             originPosition={radiosityWindow.originPosition}
+            initialDimensions={getWindowDimensions("radiosity-window")}
+            onDimensionChange={handleDimensionChange("radiosity-window")}
           />
         )}
 
@@ -376,6 +334,8 @@ function Home() {
             onFocus={() => handleWindowFocus("pantonify-window")}
             onClose={() => closeWindowByKey("pantonify-window")}
             originPosition={pantonifyWindow.originPosition}
+            initialDimensions={getWindowDimensions("pantonify-window")}
+            onDimensionChange={handleDimensionChange("pantonify-window")}
           />
         )}
         {/* Render light window */}
@@ -386,6 +346,8 @@ function Home() {
             onFocus={() => handleWindowFocus("light-window")}
             onClose={() => closeWindowByKey("light-window")}
             originPosition={lightWindow.originPosition}
+            initialDimensions={getWindowDimensions("light-window")}
+            onDimensionChange={handleDimensionChange("light-window")}
           />
         )}
       </div>

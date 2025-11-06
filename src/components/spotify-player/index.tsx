@@ -23,6 +23,8 @@ interface SpotifyPlayerProps {
   onFocus?: () => void;
   onClose: () => void;
   originPosition?: { x: number; y: number };
+  initialDimensions?: { width: number; height: number };
+  onDimensionChange?: (dimensions: { width: number; height: number }) => void;
 }
 
 export default function SpotifyWindowContent({
@@ -33,6 +35,8 @@ export default function SpotifyWindowContent({
   onFocus,
   onClose,
   originPosition,
+  initialDimensions,
+  onDimensionChange: externalDimensionChange,
 }: SpotifyPlayerProps) {
   // Get redirect URI from prop or default to current origin
   // IMPORTANT: This must EXACTLY match the redirect URI configured in your Spotify app
@@ -64,7 +68,10 @@ export default function SpotifyWindowContent({
   const [getWindowDimensions] = useAtom(getWindowDimensionsAtom);
   const [, updateWindowDimensions] = useAtom(updateWindowDimensionsAtom);
 
-  const savedDimensions = getWindowDimensions("spotify-player-window");
+  // Use initialDimensions (from localStorage via useDraggableWindows) if provided
+  // Otherwise fall back to jotai state
+  const savedDimensions =
+    initialDimensions || getWindowDimensions("spotify-player-window");
   const windowWidth = savedDimensions?.width
     ? `${savedDimensions.width}px`
     : "450px";
@@ -76,6 +83,12 @@ export default function SpotifyWindowContent({
     width: number;
     height: number;
   }) => {
+    // Call the new onDimensionChange prop if provided
+    if (externalDimensionChange) {
+      externalDimensionChange(dimensions);
+    }
+
+    // Also update jotai state for backward compatibility
     updateWindowDimensions({
       windowId: "spotify-player-window",
       dimensions,

@@ -30,7 +30,7 @@ export function HorizontalMenu({
 
           <motion.div
             className="fixed left-0 right-0 flex items-center justify-center gap-4 z-1001"
-            style={{ bottom: "80px" }}
+            style={{ bottom: "120px" }}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
@@ -39,7 +39,7 @@ export function HorizontalMenu({
             {items.map((item, index) => (
               <motion.button
                 key={item.id}
-                className="flex items-center justify-center gap-2 px-3 py-1 bg-grey/10 backdrop-blur-3xl hover:bg-white/20 rounded-3xl border border-white/20 text-white text-sm pointer-events-auto transition-colors duration-200 w-40"
+                className="flex items-center justify-center gap-2 px-3 py-1 bg-grey/10 backdrop-blur-3xl dark:hover:bg-white/20 hover:bg-black/20 rounded-3xl border dark:border-white/20 border-black/20 dark:text-white text-sm pointer-events-auto transition-colors duration-200 w-40"
                 initial={{
                   opacity: 0,
                   scale: 0.5,
@@ -67,7 +67,8 @@ export function HorizontalMenu({
                 }}
                 whileHover={{
                   scale: 1.1,
-                  backgroundColor: "rgba(255, 255, 255, 0.2)",
+                  backgroundColor:
+                    item.hoverBackgroundColor || "rgba(255, 255, 255, 0.2)",
                 }}
                 whileTap={{ scale: 0.95 }}
               >

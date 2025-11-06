@@ -33,6 +33,7 @@ export default function Nav({ buttonRef, isAllClosed, openWindow }: NavProps) {
       id: "amazon",
       label: "Amazon",
       onClick: () => openWindow("amazon-window"),
+      hoverBackgroundColor: `rgba(255, 160, 0, 0.6)`,
     },
     {
       id: "light-drawing",
@@ -61,7 +62,7 @@ export default function Nav({ buttonRef, isAllClosed, openWindow }: NavProps) {
 
   return (
     <motion.div
-      className="relative center-x"
+      className="relative center-x "
       style={{
         position: "absolute",
         top: 0,
@@ -75,7 +76,7 @@ export default function Nav({ buttonRef, isAllClosed, openWindow }: NavProps) {
       animate={{
         opacity: 1,
         scale: isAllClosed ? 1.5 : 1,
-        y: isAllClosed ? "calc(50vh - 50%)" : "calc(100vh - 66px)",
+        y: isAllClosed ? "calc(50vh - 50%)" : "calc(100vh - 100px)",
       }}
       transition={{ duration: 0.4, ease: [0.1, 1, 0.3, 1] }}
       onHoverStart={() => setIsHovered(true)}
@@ -108,7 +109,7 @@ export default function Nav({ buttonRef, isAllClosed, openWindow }: NavProps) {
       </div>
 
       {/* Content layer with overflow visible */}
-      <div className="nav-container flex items-center gap-3 sm:gap-4 md:gap-5 justify-center max-w-2xl mx-auto bg-black/30 backdrop-blur-sm rounded-4xl p-2 border border-white/10 pointer-events-auto center-x h-[50px]">
+      <div className="nav-container flex items-center gap-3 sm:gap-4 md:gap-5 justify-center max-w-2xs sm:max-w-xl mx-auto bg-black/30 backdrop-blur-sm rounded-4xl p-2 border border-white/10 pointer-events-auto center-x h-[50px]">
         <NavButton
           buttonRef={buttonRef}
           onClick={() => openWindow("resume-window")}

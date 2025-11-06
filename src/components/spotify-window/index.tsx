@@ -9,6 +9,8 @@ interface SpotifyWindowProps {
   onFocus?: () => void;
   onClose: () => void;
   originPosition?: { x: number; y: number };
+  initialDimensions?: { width: number; height: number };
+  onDimensionChange?: (dimensions: { width: number; height: number }) => void;
 }
 
 /**
@@ -21,6 +23,8 @@ export default function SpotifyNowPlayingWindow({
   onFocus,
   onClose,
   originPosition,
+  initialDimensions,
+  onDimensionChange,
 }: SpotifyWindowProps) {
   const {
     data: spotifyClientId,
@@ -72,6 +76,8 @@ export default function SpotifyNowPlayingWindow({
       onFocus={onFocus}
       onClose={onClose}
       originPosition={originPosition}
+      initialDimensions={initialDimensions}
+      onDimensionChange={onDimensionChange}
     />
   );
 }
