@@ -1,6 +1,7 @@
 import DraggableWindow, {
   DraggableWindowProps,
 } from "../../components/draggable-window";
+import LightSvg from "./svg";
 
 function LightWindow(
   props: DraggableWindowProps & {
@@ -24,9 +25,19 @@ function LightWindow(
 
 function LightWindowContent() {
   return (
-    <div>
-      <h1>Amazon</h1>
-    </div>
+    <>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100%",
+          width: "100%",
+        }}
+      >
+        <LightSvg />
+      </div>
+    </>
   );
 }
 

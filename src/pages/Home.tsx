@@ -39,7 +39,7 @@ const WINDOW_URL_MAP: Record<string, WindowKey> = {
   spotify: "spotify-player-window",
   resume: "resume-window",
   amazon: "amazon-window",
-  light: "light-drawing-window",
+  light: "light-window",
   radiosity: "radiosity-window",
   pantonify: "pantonify-window",
 };

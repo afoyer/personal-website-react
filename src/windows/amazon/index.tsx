@@ -1,6 +1,8 @@
+import { motion } from "motion/react";
 import DraggableWindow, {
   DraggableWindowProps,
 } from "../../components/draggable-window";
+import "./index.css";
 
 function AmazonWindow(
   props: DraggableWindowProps & {
@@ -29,7 +31,32 @@ function AmazonWindow(
 function AmazonWindowContent() {
   return (
     <div>
-      <h1>Amazon</h1>
+      <div className="flex justify-center items-center py-8 w-full">
+        <motion.h1
+          className="ember text-7xl font-bold text-amber-600"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: "easeInOut" }}
+        >
+          Amazon
+        </motion.h1>
+      </div>
+      <motion.div
+        className="items-center px-8 w-full"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: "easeInOut" }}
+      >
+        <motion.p className="text-2xl font-bold mb-4">
+          A journey of discovery
+        </motion.p>
+        <motion.p className="text-2xl font-bold ">
+          A journey of discovery
+        </motion.p>
+        <motion.p className="text-2xl font-bold ">
+          A journey of discovery
+        </motion.p>
+      </motion.div>
     </div>
   );
 }
