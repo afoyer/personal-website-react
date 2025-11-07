@@ -6,6 +6,7 @@ import DraggableWindow, {
 import { getUrl } from "aws-amplify/storage";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import Spinner from "../../components/spinner";
+import { Code } from "lucide-react";
 
 function PantonifyWindow(
   props: DraggableWindowProps & {
@@ -44,24 +45,41 @@ function EarlyImage() {
     <>
       <motion.img
         src={earlyImageUrl}
-        alt="Pantonify splash screen"
-        loading="lazy"
-        className="absolute w-full h-full object-contain px-8 pt-4 pb-1 max-w-2xl shadow-2xl rounded-lg"
-        style={{ zIndex: 1 }}
-        initial={{ rotate: -8, x: -20 }}
-        animate={{ rotate: -8, x: -20 }}
-        whileHover={{ rotate: -5, x: -15, scale: 1.05 }}
-        transition={{ type: "spring", stiffness: 300, damping: 20 }}
-      />
-      <motion.img
-        src={earlyImageUrl}
         alt="Early version of Pantonify"
         loading="lazy"
-        className="absolute w-full h-full object-contain px-8 pt-4 pb-1 max-w-2xl shadow-2xl rounded-lg"
+        className="relative object-contain px-4 sm:px-6 md:px-8 pt-4 pb-1 w-full max-w-2xl shadow-2xl rounded-lg"
         style={{ zIndex: 2 }}
-        initial={{ rotate: 8, x: 20 }}
-        animate={{ rotate: 8, x: 20 }}
-        whileHover={{ rotate: 5, x: 15, scale: 1.05 }}
+        initial={{ rotate: 8, x: "10%" }}
+        animate={{ rotate: 8, x: "10%" }}
+        whileHover={{ rotate: 5, x: "8%", scale: 1.05 }}
+        transition={{ type: "spring", stiffness: 300, damping: 20 }}
+      />
+    </>
+  );
+}
+
+function SplashImage() {
+  const { data: earlyImageUrl } = useSuspenseQuery({
+    queryKey: ["pantonify-splash-image"],
+    queryFn: async () => {
+      const result = await getUrl({
+        path: "pantonify/splash.png",
+      });
+      return result.url.toString();
+    },
+  });
+
+  return (
+    <>
+      <motion.img
+        src={earlyImageUrl}
+        alt="Pantonify splash screen"
+        loading="lazy"
+        className="relative object-contain px-4 sm:px-6 md:px-8 pt-4 pb-1 w-full max-w-2xl shadow-2xl rounded-lg"
+        style={{ zIndex: 1 }}
+        initial={{ rotate: -8, x: "-10%" }}
+        animate={{ rotate: -8, x: "-10%" }}
+        whileHover={{ rotate: -5, x: "-8%", scale: 1.05 }}
         transition={{ type: "spring", stiffness: 300, damping: 20 }}
       />
     </>
@@ -81,11 +99,11 @@ function ExampleCardImage() {
 
   return (
     <motion.img
-      className="rounded-lg shadow-2xl"
+      className="rounded-lg shadow-2xl max-h-96"
       whileInView={{ opacity: 1, y: 0 }}
-      whileHover={{ scale: 1.05 }}
+      whileHover={{ scale: 1.1, rotate: 2 }}
       initial={{ opacity: 0, y: 20 }}
-      transition={{ duration: 0.5, delay: 0.5, ease: "easeInOut" }}
+      transition={{ duration: 0.2, ease: "easeInOut" }}
       src={exampleCardUrl}
       alt="Example swatch card"
     />
@@ -105,9 +123,9 @@ function CurrentImage() {
 
   return (
     <motion.img
-      className="rounded-lg shadow-2xl max-w-2xl"
-      whileHover={{ scale: 1.05 }}
+      className="rounded-lg shadow-2xl max-w-md"
       src={currentImageUrl}
+      loading="lazy"
       alt="Current version of Pantonify"
     />
   );
@@ -115,8 +133,8 @@ function CurrentImage() {
 
 function PantonifyWindowContent() {
   return (
-    <div className="helvetica-neue flex flex-col justify center m-auto items-center">
-      <div className="flex flex-col justify-center items-center m-8 gap-8 max-w-3xl pb-[25%]">
+    <div className="helvetica-neue flex flex-col justify center m-auto items-center overflow-hidden">
+      <div className="flex flex-col justify-center items-center w-full mx-8 gap-8 max-w-3xl pb-[25%]">
         <motion.h1
           className="neue-helvetica-bq text-2xl font-semibold mb-4 flex justify-center items-center py-4"
           initial={{ opacity: 0, y: 20 }}
@@ -126,7 +144,7 @@ function PantonifyWindowContent() {
           Pantonify
         </motion.h1>
         <motion.div
-          className="flex flex-col gap-2 mx-16"
+          className="flex flex-col gap-2 mx-4 sm:mx-8 md:mx-16"
           whileInView={{ opacity: 1 }}
           initial={{ opacity: 0 }}
           transition={{ duration: 0.5, ease: "easeInOut" }}
@@ -167,19 +185,20 @@ function PantonifyWindowContent() {
           </motion.p>
         </motion.div>
         <motion.div
-          className="flex justify-center items-center flex-col gap-0"
+          className="flex justify-center items-center flex-col gap-0 overflow-visible"
           whileInView={{ opacity: 1 }}
           initial={{ opacity: 0 }}
           transition={{ duration: 0.5, ease: "easeInOut" }}
         >
-          <motion.div className="relative flex justify-center items-center h-96">
+          <motion.div className="flex justify-center items-center gap-0 w-full overflow-visible py-8">
             <Suspense
               fallback={
-                <div className="absolute inset-0 flex items-center justify-center">
+                <div className="flex items-center justify-center">
                   <Spinner />
                 </div>
               }
             >
+              <SplashImage />
               <EarlyImage />
             </Suspense>
           </motion.div>
@@ -187,12 +206,12 @@ function PantonifyWindowContent() {
             The initial splash screen
           </motion.p>
         </motion.div>
-        <motion.div className="flex items-center gap-2">
+        <motion.div className="flex flex-col md:flex-row items-center gap-4 md:gap-2 px-4">
           <motion.div
-            className="flex justify-center items-center flex-col flex-wrap"
+            className="flex justify-center items-center flex-col flex-wrap flex-1"
             whileInView={{ opacity: 1 }}
             initial={{ opacity: 0 }}
-            transition={{ duration: 0.5, ease: "easeInOut" }}
+            transition={{ duration: 0.2, ease: "easeInOut" }}
           >
             <motion.p>
               After finding a set of libraries{" "}
@@ -237,21 +256,36 @@ function PantonifyWindowContent() {
             </motion.p>
           </motion.div>
         </motion.div>
-        <motion.div className="flex justify-center items-center gap-2">
-          <motion.div className="flex justify-center  flex-col items-center">
-            <Suspense fallback={<Spinner />}>
-              <CurrentImage />
-            </Suspense>
+        <motion.div className="flex flex-col md:flex-row justify-center flex-wrap items-center gap-4">
+          <motion.div
+            variants={{ hovered: { scale: 1.1 }, hidden: { scale: 1 } }}
+            whileHover={"hovered"}
+            animate={"hidden"}
+            className="flex justify-center flex-col items-center shrink-0"
+          >
+            <motion.div>
+              <Suspense fallback={<Spinner />}>
+                <CurrentImage />
+              </Suspense>
+            </motion.div>
             <motion.p className="text-center text-xs text-gray-500 dark:text-gray-400">
               A screenshot of the simplified version of the website
             </motion.p>
           </motion.div>
-          <motion.p>
+          <motion.p className="grow-2 px-4">
             While this website is no longer existing to due new changes from the
             Spotify API, limiting how many users can have access to it, I
             managed to recreate a simplified version of it within this website.
           </motion.p>
         </motion.div>
+        <motion.a
+          whileHover={{ scale: 1.1 }}
+          href="https://github.com/afoyer/pantonify"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <Code />
+        </motion.a>
       </div>
     </div>
   );
