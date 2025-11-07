@@ -7,7 +7,7 @@ function LightSvg() {
       width="50%"
       height="100%"
       viewBox="0 0 906 314"
-      className="overflow-visible"
+      className="overflow-visible z-20"
     >
       <motion.g
         className="light-svg-group"

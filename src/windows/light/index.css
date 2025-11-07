@@ -1,7 +1,7 @@
 /* Target SVG group when parent container is hovered */
 .light-container:hover .light-svg-group,
 .light-container:hover .light-svg-group path {
-  filter: drop-shadow(0 0 12px rgba(100, 100, 255, 0.6));
+  filter: drop-shadow(0 0 12px rgba(91, 91, 229, 0.6));
   fill: rgba(100, 100, 255, 1) !important;
   transition:
     filter 0.2s ease,

@@ -4,10 +4,11 @@ import DraggableWindow, {
 import LightSvg from "./svg";
 import "./index.css";
 import { motion } from "motion/react";
-import { Suspense } from "react";
+import { Suspense, useRef, useEffect, useState } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { fetchLightDrawingImages } from "../../utils/lightDrawingApi";
 import Spinner from "../../components/spinner";
+import { ArrowDown, ArrowDownNarrowWide } from "lucide-react";
 
 function LightWindow(
   props: DraggableWindowProps & {
@@ -31,15 +32,65 @@ function LightWindow(
 }
 
 function LightWindowContent() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [contentHeight, setContentHeight] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    const updateHeight = () => {
+      if (containerRef.current) {
+        // Get the scrollable content area height (parent of this component)
+        const scrollableParent = containerRef.current.closest(
+          ".window-content-scrollable"
+        ) as HTMLElement;
+        if (scrollableParent) {
+          setContentHeight(scrollableParent.clientHeight);
+        }
+      }
+    };
+
+    let resizeObserver: ResizeObserver | null = null;
+    let scrollableParent: HTMLElement | null = null;
+
+    // Use a small delay to ensure the parent is rendered
+    const timeout = setTimeout(() => {
+      updateHeight();
+
+      // Set up ResizeObserver after initial render
+      scrollableParent = containerRef.current?.closest(
+        ".window-content-scrollable"
+      ) as HTMLElement;
+
+      if (scrollableParent) {
+        resizeObserver = new ResizeObserver(() => {
+          updateHeight();
+        });
+        resizeObserver.observe(scrollableParent);
+        window.addEventListener("resize", updateHeight);
+      }
+    }, 0);
+
+    return () => {
+      clearTimeout(timeout);
+      if (resizeObserver && scrollableParent) {
+        resizeObserver.unobserve(scrollableParent);
+      }
+      window.removeEventListener("resize", updateHeight);
+    };
+  }, []);
+
   return (
-    <>
+    <div ref={containerRef} className="relative w-full">
+      {/* Fixed SVG and images section - takes 100% of window content area height */}
       <div
+        className="relative w-full"
         style={{
+          height: contentHeight ? `${contentHeight}px` : "100%",
+          minHeight: contentHeight ? `${contentHeight}px` : "100%",
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          height: "100%",
-          width: "100%",
         }}
       >
         <Suspense
@@ -51,8 +102,22 @@ function LightWindowContent() {
         >
           <LightDrawingImages />
         </Suspense>
+        <motion.div
+          className="absolute bottom-8 flex justify-center items-center"
+          animate={{ y: [0, 20, 0] }}
+          transition={{ duration: 1, repeat: Infinity }}
+        >
+          <ArrowDown stroke="white" />
+        </motion.div>
       </div>
-    </>
+      {/* Scrollable content below */}
+      <div className="relative w-full bg-linear-to-b from-gray-700 blur-2xl to-gray-900 dark:from-gray-900 dark:to-black z-20">
+        {/* Add your additional content here */}
+        <div className="flex justify-center items-center w-full h-full">
+          <p className="text-white text-2xl">Scroll down to see more</p>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -73,13 +138,13 @@ function LightDrawingImages() {
         hidden: {},
         hovered: {},
       }}
-      className="light-container w-full h-full flex items-center justify-center relative"
+      className="light-container w-full h-full flex flex-col items-center justify-center relative"
     >
       <LightSvg />
       {/* Images that spread out from center on hover */}
       {images.slice(0, 6).map((image, index) => {
         const angle = index * 60 * (Math.PI / 180); // Convert to radians, 60 degrees apart
-        const distance = 200; // Distance to spread out
+        const distance = 150; // Distance to spread out
 
         return (
           <motion.img
@@ -103,19 +168,19 @@ function LightDrawingImages() {
               },
             }}
             transition={{
-              type: "spring",
+              type: "tween",
               stiffness: 200,
               damping: 15,
             }}
-            className="absolute"
+            className="absolute drop-shadow-lg rounded-lg"
             style={{
-              width: "24px",
-              height: "24px",
-              borderRadius: "4px",
+              zIndex: 10,
+              width: "100px",
+              height: "150px",
               left: "50%",
               top: "50%",
-              marginLeft: "-12px",
-              marginTop: "-12px",
+              marginLeft: "-50px",
+              marginTop: "-75px",
               objectFit: "cover",
             }}
           />
