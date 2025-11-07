@@ -102,6 +102,24 @@ function AmazonWindowContent() {
           </p>
         </CloudscapeContainer>
       </motion.div>
+      <CloudscapeContainer header="Work Done">
+        <p>
+          I helped build an entire new application run on premises to enhance
+          data center monitoring, which involved creating an entire new
+          front-end from scratch, incorporating Redux as well as routing.
+        </p>
+        <p className="mt-4">
+          I also focused on front end performance, tackling querying and
+          memoization of our application as well as reuse of code through more
+          generic components that could be used across our applications. These
+          changes and updates improved overall load times by up to a second, and
+          reduced code lines by up to 80%.
+        </p>
+        <p className="mt-4">
+          I also happened to convert our entire team to use Figma instead of
+          Sketch, which helped with collaboration during COVID a lot.
+        </p>
+      </CloudscapeContainer>
       <motion.h1
         className="cloudscape-page-header py-4 text-center sm:text-left sm:pl-0"
         initial={{ opacity: 0, y: 20 }}
@@ -153,8 +171,20 @@ function AmazonWindowContent() {
                 a data center's status.
               </p>
               <p className="mt-4">
-                On top of this, this layout system allows for dynamic loading
-                through simple rendering techniques thanks to React.
+                This layout system allows for dynamic loading through simple
+                rendering techniques thanks to React and the templating
+                standardization we set up for every configuration, allowing us
+                to easily render many different equipments using only one
+                configuration template.{" "}
+                <b>
+                  It ultimately empowers us to render and populate{" "}
+                  <p className="underline font-bold">
+                    hundreds of thousands of metrics
+                  </p>{" "}
+                  over 50 different pages, each having up to 30 different
+                  devices, in more than 50 different data centers worldwide (and
+                  growing!).
+                </b>
               </p>
             </CloudscapeContainer>
           </div>
