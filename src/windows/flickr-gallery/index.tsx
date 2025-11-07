@@ -177,7 +177,7 @@ export default function FlickrGallery({
         >
           <motion.div
             ref={galleryRef}
-            className="p-4 grid gap-2"
+            className="pb-20 sm:pb-6 px-4 grid gap-2"
             style={{
               gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",
             }}

@@ -7,6 +7,7 @@ import { getUrl } from "aws-amplify/storage";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import Spinner from "../../components/spinner";
 import { Code } from "lucide-react";
+import ImageFetcher from "../../components/image-fetcher";
 
 function PantonifyWindow(
   props: DraggableWindowProps & {
@@ -99,7 +100,7 @@ function ExampleCardImage() {
 
   return (
     <motion.img
-      className="rounded-lg shadow-2xl max-h-96"
+      className="rounded-lg shadow-2xl max-w-1/2"
       whileInView={{ opacity: 1, y: 0 }}
       whileHover={{ scale: 1.1, rotate: 2 }}
       initial={{ opacity: 0, y: 20 }}
@@ -206,14 +207,14 @@ function PantonifyWindowContent() {
             The initial splash screen
           </motion.p>
         </motion.div>
-        <motion.div className="flex flex-col md:flex-row items-center gap-4 md:gap-2 px-4">
+        <motion.div className="flex flex-wrap md:flex-row items-center justify-center gap-4 md:gap-2 px-4">
           <motion.div
             className="flex justify-center items-center flex-col flex-wrap flex-1"
             whileInView={{ opacity: 1 }}
             initial={{ opacity: 0 }}
             transition={{ duration: 0.2, ease: "easeInOut" }}
           >
-            <motion.p>
+            <motion.p className="grow shrink basis-1/2 min-w-[200px]">
               After finding a set of libraries{" "}
               <a
                 href="https://next-auth.js.org/"
@@ -247,13 +248,32 @@ function PantonifyWindowContent() {
               to get a users top tracks from different time ranges.
             </motion.p>
           </motion.div>
-          <motion.div className="flex justify-center items-center flex-col">
+          <motion.div className="flex justify-center flex-wrap items-center basis-1/2 gap-4 min-w-[200px]">
+            <motion.div className="flex justify-center items-center flex-col grow flex-basis-2/3">
+              <Suspense fallback={<Spinner />}>
+                <ExampleCardImage />
+              </Suspense>
+              <motion.p className="text-center text-xs text-gray-500 dark:text-gray-400">
+                An example of a generated swatch card
+              </motion.p>
+            </motion.div>
             <Suspense fallback={<Spinner />}>
-              <ExampleCardImage />
+              <ImageFetcher
+                folder="pantonify"
+                fileName="real-swatch.jpg"
+                className="rounded-lg shadow-2xl "
+                whileInView={{ opacity: 1, y: 0 }}
+                whileHover={{ scale: 1.1 }}
+                initial={{ opacity: 0, y: 20 }}
+                transition={{ duration: 0.2, ease: "easeInOut" }}
+                alt="A real Pantone swatch"
+                description={
+                  <div>
+                    <p>A real Pantone swatch.</p>
+                  </div>
+                }
+              />
             </Suspense>
-            <motion.p className="text-center text-xs text-gray-500 dark:text-gray-400">
-              An example of a generated swatch card
-            </motion.p>
           </motion.div>
         </motion.div>
         <motion.div className="flex flex-col md:flex-row justify-center flex-wrap items-center gap-4">
@@ -269,13 +289,14 @@ function PantonifyWindowContent() {
               </Suspense>
             </motion.div>
             <motion.p className="text-center text-xs text-gray-500 dark:text-gray-400">
-              A screenshot of the simplified version of the website
+              A screenshot of the simplified version within this website
             </motion.p>
           </motion.div>
           <motion.p className="grow-2 px-4">
-            While this website is no longer existing to due new changes from the
-            Spotify API, limiting how many users can have access to it, I
-            managed to recreate a simplified version of it within this website.
+            While the original website is no longer existing to due new changes
+            from the Spotify API, limiting how many users can have access to it,
+            I managed to recreate a simplified version of it within this
+            website.
           </motion.p>
         </motion.div>
         <motion.a

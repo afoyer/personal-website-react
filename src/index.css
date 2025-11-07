@@ -17,6 +17,7 @@
     height: 100%;
     width: 100%;
     overscroll-behavior: none;
+    scroll-behavior: smooth;
   }
 
   #root {

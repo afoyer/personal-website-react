@@ -2,3 +2,16 @@
   font-family: "Amazon Ember", sans-serif;
   font-weight: bold;
 }
+
+/* CloudScape Design System Page Header Styles */
+.cloudscape-page-header {
+  font-family: "Amazon Ember", sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 36px;
+  color: #16191f;
+}
+
+.dark .cloudscape-page-header {
+  color: #e9ebed;
+}

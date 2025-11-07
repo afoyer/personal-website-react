@@ -347,7 +347,7 @@ export default function DraggableWindow({
           onFocus();
         }
       }}
-      className={`container pointer-events-auto bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm shadow-2xl rounded-lg border border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden ${animationClass} ${className}`}
+      className={`container pointer-events-auto ${className} bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm shadow-2xl rounded-lg border border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden ${animationClass}`}
     >
       {/* Resize Handles */}
       <ResizeHandleSet
