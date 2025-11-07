@@ -111,10 +111,39 @@ function LightWindowContent() {
         </motion.div>
       </div>
       {/* Scrollable content below */}
-      <div className="relative w-full bg-linear-to-b from-gray-700 blur-2xl to-gray-900 dark:from-gray-900 dark:to-black z-20">
+      <div className="w-full  bg-blend-screen pb-32">
         {/* Add your additional content here */}
-        <div className="flex justify-center items-center w-full h-full">
-          <p className="text-white text-2xl">Scroll down to see more</p>
+        <div className="flex flex-col justify-center items-center w-full h-full mt-32">
+          <motion.p
+            className="text-white text-2xl pb-32"
+            whileInView={{ opacity: 1 }}
+            initial={{ opacity: 0 }}
+            transition={{ duration: 0.2, ease: "easeInOut", delay: 0.5 }}
+          >
+            A presence of light
+          </motion.p>
+          <motion.p
+            className="text-white text-2xl"
+            whileInView={{ opacity: 1 }}
+            initial={{ opacity: 0 }}
+            transition={{ duration: 0.2, ease: "easeInOut", delay: 0.8 }}
+          >
+            A moment in time
+          </motion.p>
+        </div>
+        <div className="flex flex-col p-8 items-center w-full h-full">
+          <p className="text-white text-2xl pb-8">
+            This photography project was inspired by Reuben Wu's light painting
+            through the use of drones. While his capture nature in a grand sense
+            and the presence of technology within them, I tried to scale the
+            project down to reflect the idea of presence as an ephemeral state.
+          </p>
+          <p className="text-white text-2xl">
+            Many of these images capture a simple shape within the urban spaces
+            of Saint Louis, Missouri. The addition of water was important to
+            truly ground these drawings as physical objects that exist in the
+            world rather than appended to the space.
+          </p>
         </div>
       </div>
     </div>

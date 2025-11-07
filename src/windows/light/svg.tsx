@@ -4,17 +4,15 @@ import "./index.css";
 function LightSvg() {
   return (
     <motion.svg
-      width="50%"
-      height="100%"
       viewBox="0 0 906 314"
-      className="overflow-visible z-20"
+      className="overflow-visible z-20 w-1/2 max-w-lg"
     >
       <motion.g
         className="light-svg-group"
-        fill="rgba(0,0,0,1)"
         transform="matrix(1,0,0,1,-1521.93,-1316.3)"
         initial="hidden"
         animate="visible"
+        fill="white"
         variants={{
           hidden: {},
           visible: {
@@ -26,7 +24,7 @@ function LightSvg() {
       >
         <motion.g transform="matrix(1,0,0,1,7.49576,8.82821)">
           <motion.path
-            fill="rgba(0,0,0,1)"
+            fill=""
             variants={{
               hidden: { pathLength: 0, opacity: 0 },
               visible: { pathLength: 1, opacity: 1 },
@@ -37,7 +35,7 @@ function LightSvg() {
         </motion.g>
         <motion.g transform="matrix(1,0,0,1,7.49576,8.82821)">
           <motion.path
-            fill="rgba(0,0,0,1)"
+            fill=""
             variants={{
               hidden: { pathLength: 0, opacity: 0 },
               visible: { pathLength: 1, opacity: 1 },
@@ -48,7 +46,7 @@ function LightSvg() {
         </motion.g>
         <motion.g transform="matrix(1,0,0,1,7.49576,8.82821)">
           <motion.path
-            fill="rgba(0,0,0,1)"
+            fill=""
             variants={{
               hidden: { pathLength: 0, opacity: 0 },
               visible: { pathLength: 1, opacity: 1 },
@@ -59,7 +57,7 @@ function LightSvg() {
         </motion.g>
         <motion.g transform="matrix(1,0,0,1,7.49576,8.82821)">
           <motion.path
-            fill="rgba(0,0,0,1)"
+            fill=""
             variants={{
               hidden: { pathLength: 0, opacity: 0 },
               visible: { pathLength: 1, opacity: 1 },
@@ -70,7 +68,7 @@ function LightSvg() {
         </motion.g>
         <motion.g transform="matrix(1,0,0,1,7.49576,8.82821)">
           <motion.path
-            fill="rgba(0,0,0,1)"
+            fill=""
             variants={{
               hidden: { pathLength: 0, opacity: 0 },
               visible: { pathLength: 1, opacity: 1 },
@@ -81,7 +79,7 @@ function LightSvg() {
         </motion.g>
         <motion.g transform="matrix(1,0,0,1,7.49576,8.82821)">
           <motion.path
-            fill="rgba(0,0,0,1)"
+            fill=""
             variants={{
               hidden: { pathLength: 0, opacity: 0 },
               visible: { pathLength: 1, opacity: 1 },
@@ -92,7 +90,7 @@ function LightSvg() {
         </motion.g>
         <motion.g transform="matrix(1,0,0,1,7.49576,8.82821)">
           <motion.path
-            fill="rgba(0,0,0,1)"
+            fill=""
             variants={{
               hidden: { pathLength: 0, opacity: 0 },
               visible: { pathLength: 1, opacity: 1 },
@@ -103,7 +101,7 @@ function LightSvg() {
         </motion.g>
         <motion.g transform="matrix(1,0,0,1,7.49576,8.82821)">
           <motion.path
-            fill="rgba(0,0,0,1)"
+            fill=""
             variants={{
               hidden: { pathLength: 0, opacity: 0 },
               visible: { pathLength: 1, opacity: 1 },
