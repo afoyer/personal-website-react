@@ -7,6 +7,7 @@ export const storage = defineStorage({
     "amazon/*": [allow.guest.to(["read"])],
     "radiosity/*": [allow.guest.to(["read"])],
     "resume/*": [allow.guest.to(["read"])],
-    "light-drawing/*": [allow.guest.to(["read"])],
+    "light-drawing/": [allow.guest.to(["list"])],
+    "light-drawing/*": [allow.guest.to(["get", "list"])],
   }),
 });
