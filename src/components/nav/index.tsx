@@ -40,16 +40,19 @@ export default function Nav({ buttonRef, isAllClosed, openWindow }: NavProps) {
       id: "light-drawing",
       label: "Light Drawing",
       onClick: () => openWindow("light-window"),
+      hoverBackgroundColor: `rgba(25, 118, 210, 0.6)`,
     },
     {
       id: "radiosity",
       label: "Radiosity",
       onClick: () => openWindow("radiosity-window"),
+      hoverBackgroundColor: `rgba(96, 125, 139, 0.6)`,
     },
     {
       id: "pantonify",
       label: "Pantonify",
       onClick: () => openWindow("pantonify-window"),
+      hoverBackgroundColor: `rgba(76, 175, 80, 0.6)`,
     },
   ];
 
@@ -165,7 +168,7 @@ export default function Nav({ buttonRef, isAllClosed, openWindow }: NavProps) {
         <NavFan
           items={projectItems}
           direction="right"
-          hoverBackgroundColor="rgba(251, 192, 45, 0.6)"
+          hoverBackgroundColor="rgba(244, 67, 54, 0.6)"
           radius={100}
           maxArcAngle={45}
           isNavAtBottom={!isAllClosed}
