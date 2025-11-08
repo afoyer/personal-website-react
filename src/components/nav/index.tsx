@@ -67,7 +67,7 @@ export default function Nav({ buttonRef, isAllClosed, openWindow }: NavProps) {
 
   return (
     <motion.div
-      className="relative center-x "
+      className="relative center-x backdrop-blur-xs rounded-4xl"
       style={{
         position: "absolute",
         top: 0,
