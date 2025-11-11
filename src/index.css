@@ -40,3 +40,30 @@
 .neue-helvetica-bq {
   font-family: "Neue Helvetica BQ", sans-serif;
 }
+
+.superscore-vf {
+  font-family: "superscore-vf", sans-serif;
+}
+.futura-regular {
+  font-family: "futura-100", sans-serif;
+}
+.futura-regular-italic {
+  font-family: "futura-100", sans-serif;
+  font-weight: 400;
+  font-style: italic;
+}
+.futura-med {
+  font-family: "futura-100", sans-serif;
+  font-weight: 500;
+  font-style: normal;
+}
+.futura-bold {
+  font-family: "futura-100", sans-serif;
+  font-weight: 700;
+  font-style: normal;
+}
+.futura-bold-italic {
+  font-family: "futura-100", sans-serif;
+  font-weight: 700;
+  font-style: italic;
+}

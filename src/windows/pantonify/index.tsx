@@ -124,7 +124,7 @@ function CurrentImage() {
 
   return (
     <motion.img
-      className="rounded-lg shadow-2xl max-w-md"
+      className="rounded-lg shadow-2xl w-full max-w-md"
       src={currentImageUrl}
       loading="lazy"
       alt="Current version of Pantonify"
@@ -150,7 +150,7 @@ function PantonifyWindowContent() {
           initial={{ opacity: 0 }}
           transition={{ duration: 0.5, ease: "easeInOut" }}
         >
-          <motion.p>
+          <motion.p className="self-center">
             Pantonify came from a similar website called{" "}
             <a
               href="https://receiptify.herokuapp.com/"
@@ -165,24 +165,19 @@ function PantonifyWindowContent() {
             different twist.
           </motion.p>
           <motion.p>
-            After stumbling upon a{" "}
-            <a
-              href="https://www.youtube.com/watch?v=JF8UziDHqZo"
-              target="_blank"
-              className="text-blue-500 hover:text-blue-600"
-              rel="noopener noreferrer"
-            >
-              Linus Tech Tips video
-            </a>{" "}
-            about the Pantone color swatch book they just bought to showcase
-            (and the exhorbitant price that came with it), I realized I could
-            create something that mimics the swatch card look.
+            After stumbling upon a pantone swatch card in my mother's office, I
+            realized I could create something that mimics the swatch card look.
           </motion.p>
           <motion.p>
             Starting off with an initial design through Figma, I knew two main
             things: I needed the make this site simple and I needed for it to be
             responsive. On top of that, I needed a way for users to save their
             favorite swatches created by them.
+          </motion.p>
+          <motion.p>
+            I heavily relied on friends and family to give me feedback on
+            responsive design and useability as I was still understanding how to
+            design for multiple screen sizes.
           </motion.p>
         </motion.div>
         <motion.div
@@ -204,12 +199,12 @@ function PantonifyWindowContent() {
             </Suspense>
           </motion.div>
           <motion.p className="text-center text-sm text-gray-500 dark:text-gray-400">
-            The initial splash screen
+            The initial designs in Figma
           </motion.p>
         </motion.div>
         <motion.div className="flex flex-wrap md:flex-row items-center justify-center gap-4 md:gap-2 px-4">
           <motion.div
-            className="flex justify-center items-center flex-col flex-wrap flex-1"
+            className="flex flex-col flex-wrap flex-1 sticky top-2 self-start"
             whileInView={{ opacity: 1 }}
             initial={{ opacity: 0 }}
             transition={{ duration: 0.2, ease: "easeInOut" }}
@@ -276,7 +271,7 @@ function PantonifyWindowContent() {
             </Suspense>
           </motion.div>
         </motion.div>
-        <motion.div className="flex flex-col md:flex-row justify-center flex-wrap items-center gap-4">
+        <motion.div className="flex flex-col md:flex-row justify-center flex-wrap items-center gap-4 px-4">
           <motion.div
             variants={{ hovered: { scale: 1.1 }, hidden: { scale: 1 } }}
             whileHover={"hovered"}
@@ -292,13 +287,23 @@ function PantonifyWindowContent() {
               A screenshot of the simplified version within this website
             </motion.p>
           </motion.div>
-          <motion.p className="grow-2 px-4">
+          <motion.p className="grow-2">
             While the original website is no longer existing to due new changes
             from the Spotify API, limiting how many users can have access to it,
             I managed to recreate a simplified version of it within this
             website.
           </motion.p>
         </motion.div>
+        <div className="rounded-4xl bg-white/10 shadow-2xl backdrop-blur-sm p-4 w-full border border-gray-200 dark:border-gray-800">
+          <h1 className=" pl-2 text-2xl font-bold">Technologies Used</h1>
+          <ul className="pl-4 list-disc list-inside">
+            <li className="underline">React</li>
+            <li className="underline">Next.js</li>
+            <li className="underline">Spotify API</li>
+            <li className="underline">Framer Motion</li>
+            <li className="underline">TypeScript</li>
+          </ul>
+        </div>
         <motion.a
           whileHover={{ scale: 1.1 }}
           href="https://github.com/afoyer/pantonify"

@@ -81,7 +81,7 @@ function LightWindowContent() {
   }, []);
 
   return (
-    <div ref={containerRef} className="relative w-full">
+    <div ref={containerRef} className="futura-regular relative w-full">
       {/* Fixed SVG and images section - takes 100% of window content area height */}
       <div
         className="relative w-full"
@@ -167,7 +167,7 @@ function LightDrawingImages() {
         hidden: {},
         hovered: {},
       }}
-      className="light-container w-full h-full flex flex-col items-center justify-center relative"
+      className="futura-regular light-container w-full h-full flex flex-col items-center justify-center relative"
     >
       <LightSvg />
       {/* Images that spread out from center on hover */}

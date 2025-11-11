@@ -147,11 +147,11 @@ function AmazonWindowContent() {
               <p className="mb-4">
                 This solution was built to address two main problems:
                 <ul className="pt-2 pl-4 list-disc list-inside">
-                  <li>
+                  <li className="underline">
                     Our database services had no relational knowledge of what
                     metric had to do with a given context
                   </li>
-                  <li>
+                  <li className="underline">
                     Data centers are often unique in their own way which meant
                     having to build bespoke pages for each one
                   </li>
@@ -259,8 +259,8 @@ function AmazonWindowContent() {
                 className="rounded-md shadow-2xl "
                 animate={{ opacity: 1, rotate: 5 }}
                 initial={{ opacity: 0, rotate: 5 }}
-                whileHover={{ scale: 1.5, rotate: [5, 0] }}
-                transition={{ duration: 1, ease: "anticipate" }}
+                whileHover={{ scale: 1.1, rotate: [5, 0] }}
+                transition={{ duration: 1, ease: "easeInOut" }}
                 alt="Brainstorming session for MetricOrganizer"
                 description={
                   <div>
