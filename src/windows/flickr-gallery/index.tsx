@@ -23,6 +23,7 @@ interface FlickrGalleryProps {
   originPosition?: { x: number; y: number } | null;
   initialDimensions?: { width: number; height: number };
   onDimensionChange?: (dimensions: { width: number; height: number }) => void;
+  onPositionChange?: (position: { x: number; y: number }) => void;
 }
 
 export default function FlickrGallery({
@@ -33,6 +34,7 @@ export default function FlickrGallery({
   originPosition,
   initialDimensions,
   onDimensionChange,
+  onPositionChange,
 }: FlickrGalleryProps) {
   const [selectedPhoto, setSelectedPhoto] = useState<FlickrPhoto | null>(null);
   const galleryRef = useRef<HTMLDivElement>(null);
@@ -169,6 +171,7 @@ export default function FlickrGallery({
           zIndex={zIndex}
           onFocus={onFocus}
           onDimensionChange={handleDimensionChange}
+          onPositionChange={onPositionChange}
           initial={{
             opacity: 0,
             scale: originPosition ? 0 : 1,

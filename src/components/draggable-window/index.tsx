@@ -18,6 +18,7 @@ export interface DraggableWindowProps {
   onFocus?: () => void;
   onClose?: () => void;
   onDimensionChange?: (dimensions: { width: number; height: number }) => void;
+  onPositionChange?: (position: { x: number; y: number }) => void;
   initialDimensions?: { width: number; height: number };
 }
 
@@ -53,6 +54,7 @@ export default function DraggableWindow({
   onFocus,
   onClose,
   onDimensionChange,
+  onPositionChange,
   initialDimensions,
 }: DraggableWindowContentProps) {
   const { attributes, listeners, setNodeRef, transform, isDragging } =
@@ -89,6 +91,7 @@ export default function DraggableWindow({
   } | null>(null);
   const windowRef = useRef<HTMLDivElement>(null);
   const hasInitialized = useRef(false);
+  const latestPositionOffsetRef = useRef({ x: 0, y: 0 });
 
   // Parse initial width/height on mount and constrain to viewport
   // Only run once on mount, not when props change
@@ -183,29 +186,30 @@ export default function DraggableWindow({
       let newHeight = resizeState.startHeight;
       let newPositionOffset = { ...resizeState.startPositionOffset };
 
-      // Get current window bounds
+      // Get current window bounds in viewport coordinates
+      // Positions are in viewport coordinates, accounting for CONTAINER_PADDING
       const currentLeft = position.x + resizeState.startPositionOffset.x;
       const currentTop = position.y + resizeState.startPositionOffset.y;
 
-      // Account for main container padding
-      // Positions are relative to container, so we need the container dimensions
-      // Container has CONTAINER_PADDING on each side
-      const containerWidth = window.innerWidth - CONTAINER_PADDING * 2; // viewport - padding left - padding right
-      const containerHeight = window.innerHeight - CONTAINER_PADDING * 2; // viewport - padding top - padding bottom
+      // Viewport boundaries with padding
+      const minX = CONTAINER_PADDING;
+      const minY = CONTAINER_PADDING;
+      const maxX = window.innerWidth - CONTAINER_PADDING;
+      const maxY = window.innerHeight - CONTAINER_PADDING;
 
       // Handle horizontal resizing
       if (handle.includes("e")) {
-        // Right edge - constrain to container width
-        const maxWidth = Math.max(minWidth, containerWidth - currentLeft);
+        // Right edge - constrain to viewport width minus padding
+        const maxWidth = Math.max(minWidth, maxX - currentLeft);
         newWidth = Math.max(
           minWidth,
           Math.min(maxWidth, resizeState.startWidth + deltaX)
         );
       } else if (handle.includes("w")) {
-        // Left edge - constrain to not go past left boundary (0) and right viewport edge
+        // Left edge - constrain to not go past left boundary (CONTAINER_PADDING) and right viewport edge
         // deltaX is positive when dragging right (shrinking), negative when dragging left (expanding)
-        // Constrain so that (currentLeft + deltaX) >= 0
-        const constrainedDeltaX = Math.max(deltaX, -currentLeft);
+        // Constrain so that (currentLeft + deltaX) >= CONTAINER_PADDING
+        const constrainedDeltaX = Math.max(deltaX, minX - currentLeft);
         let potentialWidth = resizeState.startWidth - constrainedDeltaX;
 
         // Ensure width respects minimum
@@ -213,13 +217,12 @@ export default function DraggableWindow({
 
         // Calculate where the left edge would be after this resize
         const actualDelta = resizeState.startWidth - potentialWidth;
-        const newLeft =
-          position.x + resizeState.startPositionOffset.x + actualDelta;
+        const newLeft = currentLeft + actualDelta;
 
-        // Ensure the right edge doesn't extend beyond container width
+        // Ensure the right edge doesn't extend beyond viewport minus padding
         const rightEdge = newLeft + potentialWidth;
-        if (rightEdge > containerWidth) {
-          potentialWidth = Math.max(minWidth, containerWidth - newLeft);
+        if (rightEdge > maxX) {
+          potentialWidth = Math.max(minWidth, maxX - newLeft);
         }
 
         newWidth = potentialWidth;
@@ -229,17 +232,17 @@ export default function DraggableWindow({
 
       // Handle vertical resizing
       if (handle.includes("s")) {
-        // Bottom edge - constrain to viewport height
-        const maxHeight = Math.max(minHeight, containerHeight - currentTop);
+        // Bottom edge - constrain to viewport height minus padding
+        const maxHeight = Math.max(minHeight, maxY - currentTop);
         newHeight = Math.max(
           minHeight,
           Math.min(maxHeight, resizeState.startHeight + deltaY)
         );
       } else if (handle.includes("n")) {
-        // Top edge - constrain to not go past top boundary (0) and bottom viewport edge
+        // Top edge - constrain to not go past top boundary (CONTAINER_PADDING) and bottom viewport edge
         // deltaY is positive when dragging down (shrinking), negative when dragging up (expanding)
-        // Constrain so that (currentTop + deltaY) >= 0
-        const constrainedDeltaY = Math.max(deltaY, -currentTop);
+        // Constrain so that (currentTop + deltaY) >= CONTAINER_PADDING
+        const constrainedDeltaY = Math.max(deltaY, minY - currentTop);
         let potentialHeight = resizeState.startHeight - constrainedDeltaY;
 
         // Ensure height respects minimum
@@ -247,13 +250,12 @@ export default function DraggableWindow({
 
         // Calculate where the top edge would be after this resize
         const actualDelta = resizeState.startHeight - potentialHeight;
-        const newTop =
-          position.y + resizeState.startPositionOffset.y + actualDelta;
+        const newTop = currentTop + actualDelta;
 
-        // Ensure the bottom edge doesn't extend beyond container height
+        // Ensure the bottom edge doesn't extend beyond viewport minus padding
         const bottomEdge = newTop + potentialHeight;
-        if (bottomEdge > containerHeight) {
-          potentialHeight = Math.max(minHeight, containerHeight - newTop);
+        if (bottomEdge > maxY) {
+          potentialHeight = Math.max(minHeight, maxY - newTop);
         }
 
         newHeight = potentialHeight;
@@ -264,6 +266,7 @@ export default function DraggableWindow({
       const newDimensions = { width: newWidth, height: newHeight };
       setDimensions(newDimensions);
       setPositionOffset(newPositionOffset);
+      latestPositionOffsetRef.current = newPositionOffset;
 
       // Call onDimensionChange during resize to update constraints in real-time
       // and save to localStorage
@@ -273,6 +276,21 @@ export default function DraggableWindow({
     };
 
     const handleMouseUp = () => {
+      // Update the actual position if it changed during resize
+      // Use ref to get the latest position offset
+      const finalOffset = latestPositionOffsetRef.current;
+      if (resizeState && (finalOffset.x !== 0 || finalOffset.y !== 0)) {
+        const newPosition = {
+          x: position.x + finalOffset.x,
+          y: position.y + finalOffset.y,
+        };
+        if (onPositionChange) {
+          onPositionChange(newPosition);
+        }
+        // Reset positionOffset since we've updated the actual position
+        setPositionOffset({ x: 0, y: 0 });
+        latestPositionOffsetRef.current = { x: 0, y: 0 };
+      }
       setResizeState(null);
     };
 
@@ -283,7 +301,15 @@ export default function DraggableWindow({
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseup", handleMouseUp);
     };
-  }, [resizeState, minWidth, minHeight, onDimensionChange, dimensions]);
+  }, [
+    resizeState,
+    minWidth,
+    minHeight,
+    onDimensionChange,
+    dimensions,
+    position,
+    onPositionChange,
+  ]);
 
   const handleWindowClick = (_e: React.MouseEvent) => {
     // Don't trigger focus if we're currently resizing

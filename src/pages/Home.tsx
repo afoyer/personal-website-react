@@ -191,6 +191,36 @@ function Home() {
     [setWindowDimensions]
   );
 
+  // Handler to update window position after resize
+  const handlePositionChange = useCallback(
+    (windowKey: WindowKey) => (newPosition: { x: number; y: number }) => {
+      updatePosition(windowKey, newPosition);
+    },
+    [updatePosition]
+  );
+
+  // Helper to get common window props
+  const getWindowProps = useCallback(
+    (windowKey: WindowKey, windowState: typeof flickrWindow) => ({
+      position: windowState.currentPosition,
+      zIndex: getWindowZIndex(windowKey),
+      onFocus: () => handleWindowFocus(windowKey),
+      onClose: () => closeWindowByKey(windowKey),
+      originPosition: windowState.originPosition,
+      initialDimensions: getWindowDimensions(windowKey),
+      onDimensionChange: handleDimensionChange(windowKey),
+      onPositionChange: handlePositionChange(windowKey),
+    }),
+    [
+      getWindowZIndex,
+      handleWindowFocus,
+      closeWindowByKey,
+      getWindowDimensions,
+      handleDimensionChange,
+      handlePositionChange,
+    ]
+  );
+
   // Custom drag end handler that updates both systems
   const handleWindowDragEnd = useCallback(
     (event: DragEndEvent) => {
@@ -223,13 +253,12 @@ function Home() {
         let newY = currentPos.y + event.delta.y;
 
         // Constrain to viewport boundaries (all sides)
-        const minX = 0;
-        const minY = 0;
-        // Container dimensions = viewport - padding on each side
-        const containerWidth = window.innerWidth - CONTAINER_PADDING * 2;
-        const containerHeight = window.innerHeight - CONTAINER_PADDING * 2;
-        const maxX = containerWidth - windowWidth;
-        const maxY = containerHeight - windowHeight;
+        // Positions are in viewport coordinates, so we need to account for container padding
+        const minX = CONTAINER_PADDING;
+        const minY = CONTAINER_PADDING;
+        // Right edge should not exceed viewport width minus padding
+        const maxX = window.innerWidth - CONTAINER_PADDING - windowWidth;
+        const maxY = window.innerHeight - CONTAINER_PADDING - windowHeight;
 
         // Apply constraints
         newX = Math.max(minX, Math.min(newX, maxX));
@@ -257,26 +286,15 @@ function Home() {
         {/* Render gallery only when open */}
         {flickrWindow.isOpen && (
           <FlickrGallery
-            position={flickrWindow.currentPosition}
-            zIndex={getWindowZIndex("flickr-gallery-window")}
-            onFocus={() => handleWindowFocus("flickr-gallery-window")}
-            onClose={() => closeWindowByKey("flickr-gallery-window")}
-            originPosition={flickrWindow.originPosition}
-            initialDimensions={getWindowDimensions("flickr-gallery-window")}
-            onDimensionChange={handleDimensionChange("flickr-gallery-window")}
+            {...getWindowProps("flickr-gallery-window", flickrWindow)}
           />
         )}
 
         {/* Render Spotify player */}
         {spotifyWindow.isOpen && (
           <SpotifyNowPlaying
-            position={spotifyWindow.currentPosition}
-            zIndex={getWindowZIndex("spotify-player-window")}
-            onFocus={() => handleWindowFocus("spotify-player-window")}
-            onClose={() => closeWindowByKey("spotify-player-window")}
+            {...getWindowProps("spotify-player-window", spotifyWindow)}
             originPosition={spotifyWindow.originPosition || undefined}
-            initialDimensions={getWindowDimensions("spotify-player-window")}
-            onDimensionChange={handleDimensionChange("spotify-player-window")}
           />
         )}
 
@@ -289,66 +307,30 @@ function Home() {
 
         {/* Render resume window */}
         {resumeWindow.isOpen && (
-          <Resume
-            position={resumeWindow.currentPosition}
-            zIndex={getWindowZIndex("resume-window")}
-            onFocus={() => handleWindowFocus("resume-window")}
-            onClose={() => closeWindowByKey("resume-window")}
-            originPosition={resumeWindow.originPosition}
-            initialDimensions={getWindowDimensions("resume-window")}
-            onDimensionChange={handleDimensionChange("resume-window")}
-          />
+          <Resume {...getWindowProps("resume-window", resumeWindow)} />
         )}
 
         {/* Render amazon window */}
         {amazonWindow.isOpen && (
-          <AmazonWindow
-            position={amazonWindow.currentPosition}
-            zIndex={getWindowZIndex("amazon-window")}
-            onFocus={() => handleWindowFocus("amazon-window")}
-            onClose={() => closeWindowByKey("amazon-window")}
-            originPosition={amazonWindow.originPosition}
-            initialDimensions={getWindowDimensions("amazon-window")}
-            onDimensionChange={handleDimensionChange("amazon-window")}
-          />
+          <AmazonWindow {...getWindowProps("amazon-window", amazonWindow)} />
         )}
 
         {/* Render radiosity window */}
         {radiosityWindow.isOpen && (
           <RadiosityWindow
-            position={radiosityWindow.currentPosition}
-            zIndex={getWindowZIndex("radiosity-window")}
-            onFocus={() => handleWindowFocus("radiosity-window")}
-            onClose={() => closeWindowByKey("radiosity-window")}
-            originPosition={radiosityWindow.originPosition}
-            initialDimensions={getWindowDimensions("radiosity-window")}
-            onDimensionChange={handleDimensionChange("radiosity-window")}
+            {...getWindowProps("radiosity-window", radiosityWindow)}
           />
         )}
 
         {/* Render pantonify window */}
         {pantonifyWindow.isOpen && (
           <PantonifyWindow
-            position={pantonifyWindow.currentPosition}
-            zIndex={getWindowZIndex("pantonify-window")}
-            onFocus={() => handleWindowFocus("pantonify-window")}
-            onClose={() => closeWindowByKey("pantonify-window")}
-            originPosition={pantonifyWindow.originPosition}
-            initialDimensions={getWindowDimensions("pantonify-window")}
-            onDimensionChange={handleDimensionChange("pantonify-window")}
+            {...getWindowProps("pantonify-window", pantonifyWindow)}
           />
         )}
         {/* Render light window */}
         {lightWindow.isOpen && (
-          <LightWindow
-            position={lightWindow.currentPosition}
-            zIndex={getWindowZIndex("light-window")}
-            onFocus={() => handleWindowFocus("light-window")}
-            onClose={() => closeWindowByKey("light-window")}
-            originPosition={lightWindow.originPosition}
-            initialDimensions={getWindowDimensions("light-window")}
-            onDimensionChange={handleDimensionChange("light-window")}
-          />
+          <LightWindow {...getWindowProps("light-window", lightWindow)} />
         )}
       </div>
     </DndContext>

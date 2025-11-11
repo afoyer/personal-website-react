@@ -11,6 +11,7 @@ interface SpotifyWindowProps {
   originPosition?: { x: number; y: number };
   initialDimensions?: { width: number; height: number };
   onDimensionChange?: (dimensions: { width: number; height: number }) => void;
+  onPositionChange?: (position: { x: number; y: number }) => void;
 }
 
 /**
@@ -25,6 +26,7 @@ export default function SpotifyNowPlayingWindow({
   originPosition,
   initialDimensions,
   onDimensionChange,
+  onPositionChange,
 }: SpotifyWindowProps) {
   const {
     data: spotifyClientId,
@@ -78,6 +80,7 @@ export default function SpotifyNowPlayingWindow({
       originPosition={originPosition}
       initialDimensions={initialDimensions}
       onDimensionChange={onDimensionChange}
+      onPositionChange={onPositionChange}
     />
   );
 }

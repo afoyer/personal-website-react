@@ -25,6 +25,7 @@ interface SpotifyPlayerProps {
   originPosition?: { x: number; y: number };
   initialDimensions?: { width: number; height: number };
   onDimensionChange?: (dimensions: { width: number; height: number }) => void;
+  onPositionChange?: (position: { x: number; y: number }) => void;
 }
 
 export default function SpotifyWindowContent({
@@ -37,6 +38,7 @@ export default function SpotifyWindowContent({
   originPosition,
   initialDimensions,
   onDimensionChange: externalDimensionChange,
+  onPositionChange,
 }: SpotifyPlayerProps) {
   // Get redirect URI from prop or default to current origin
   // IMPORTANT: This must EXACTLY match the redirect URI configured in your Spotify app
@@ -266,6 +268,7 @@ export default function SpotifyWindowContent({
       onFocus={onFocus}
       onClose={handleClose}
       onDimensionChange={handleDimensionChange}
+      onPositionChange={onPositionChange}
       initial={{
         opacity: 0,
         scale: originPosition ? 0 : 1,
