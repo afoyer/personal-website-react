@@ -8,7 +8,7 @@ import { Suspense, useRef, useEffect, useState } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { fetchLightDrawingImages } from "../../utils/lightDrawingApi";
 import Spinner from "../../components/spinner";
-import { ArrowDown, ArrowDownNarrowWide } from "lucide-react";
+import { ArrowDown } from "lucide-react";
 
 function LightWindow(
   props: DraggableWindowProps & {
@@ -34,7 +34,10 @@ function LightWindow(
 function LightWindowContent() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [contentHeight, setContentHeight] = useState<number | null>(null);
-
+  const { data: images } = useSuspenseQuery({
+    queryKey: ["light-drawing-images"],
+    queryFn: fetchLightDrawingImages,
+  });
   useEffect(() => {
     if (!containerRef.current) return;
 
@@ -81,7 +84,10 @@ function LightWindowContent() {
   }, []);
 
   return (
-    <div ref={containerRef} className="futura-regular relative w-full">
+    <div
+      ref={containerRef}
+      className="container futura-regular relative w-full"
+    >
       {/* Fixed SVG and images section - takes 100% of window content area height */}
       <div
         className="relative w-full"
@@ -146,6 +152,18 @@ function LightWindowContent() {
           </p>
         </div>
       </div>
+      {images.length > 0 && (
+        <div className="flex flex-col items-center justify-center gap-4">
+          {images.map((image) => (
+            <img
+              src={image.url}
+              alt={image.key}
+              height={200}
+              className={`sm:w-1/2 w-full`}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

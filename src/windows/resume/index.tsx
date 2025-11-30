@@ -5,6 +5,7 @@ import DraggableWindow, {
 import { getUrl } from "aws-amplify/storage";
 import Spinner from "../../components/spinner";
 import { useState } from "react";
+import { CloudDownload, Download, DownloadIcon } from "lucide-react";
 
 function Resume(
   props: DraggableWindowProps & {
@@ -72,11 +73,48 @@ function ResumeContent() {
           height="100%"
           onLoad={() => setIframeLoaded(true)}
           style={{
+            pointerEvents: "none", // Prevent iframe from capturing mouse events during resize/hover or resizing
             opacity: iframeLoaded ? 1 : 0,
             transition: "opacity 0.3s ease-in-out",
             border: "none",
+            position: "absolute",
+            top: 0,
+            left: 0,
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.pointerEvents = "auto";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.pointerEvents = "none";
           }}
         />
+        <a
+          href={resumeUrl}
+          download
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            position: "absolute",
+            bottom: 16,
+            right: 16,
+            background: "rgba(255,255,255,0.85)",
+            borderRadius: 6,
+            padding: "8px 14px",
+            textDecoration: "none",
+            color: "#222",
+            fontWeight: 500,
+            boxShadow: "0 2px 8px rgba(0,0,0,0.13)",
+            zIndex: 10,
+            fontSize: 14,
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+          }}
+          tabIndex={0}
+          aria-label="Download resume PDF"
+        >
+          <DownloadIcon />
+        </a>
       </div>
     );
   }

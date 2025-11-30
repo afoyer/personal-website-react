@@ -72,8 +72,8 @@ const Alert = ({
       <div className="flex gap-3">
         {/* Warning Icon */}
         <motion.div
-          initial={{ opacity: 0, scale: 0, rotate: -180 }}
-          animate={{ opacity: 1, scale: 1, rotate: 0 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{
             delay: 0.1,
             duration: 0.5,

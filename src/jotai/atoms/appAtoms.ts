@@ -64,3 +64,24 @@ export const getWindowDimensionsAtom = atom(
     return dimensions[windowId];
   }
 );
+
+// Fractal background colors
+export interface FractalColors {
+  first: string;
+  second: string;
+  third: string;
+}
+
+export const fractalColorsAtom = atom<FractalColors>({
+  first: "#FF0080",
+  second: "#7928CA",
+  third: "#0070F3",
+});
+
+// Action atom to update fractal colors
+export const updateFractalColorsAtom = atom(
+  null,
+  (_get, set, colors: FractalColors) => {
+    set(fractalColorsAtom, colors);
+  }
+);

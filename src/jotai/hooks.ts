@@ -24,6 +24,8 @@ import {
   flickrHasGalleryAtom,
   setFlickrErrorAtom,
   setFlickrHasGalleryAtom,
+  fractalColorsAtom,
+  updateFractalColorsAtom,
 } from "./atoms";
 
 // Custom hook for write-only atoms (actions)
@@ -90,4 +92,10 @@ export function useFlickrGallery() {
     setFlickrError,
     setFlickrHasGallery,
   };
+}
+
+export function useFractalColors() {
+  const colors = useAtomValue(fractalColorsAtom);
+  const [, updateColors] = useAtom(updateFractalColorsAtom);
+  return { colors, updateColors };
 }

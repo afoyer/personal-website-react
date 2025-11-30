@@ -9,7 +9,7 @@ import {
 } from "@dnd-kit/core";
 import { useRef, useMemo, useCallback, useState, useEffect } from "react";
 import { useDraggableWindows } from "../hooks/useDraggableWindows";
-import { useFlickrGallery } from "../jotai/hooks";
+import { useFlickrGallery, useFractalColors } from "../jotai/hooks";
 import { useWindowAnimations } from "../hooks/useWindowAnimation";
 import { useWindowUrlSync } from "../hooks/useWindowUrlSync";
 import FlickrGallery from "../windows/flickr-gallery";
@@ -22,6 +22,7 @@ import AmazonWindow from "../windows/amazon";
 import PantonifyWindow from "../windows/pantonify";
 import RadiosityWindow from "../windows/radiosity";
 import LightWindow from "../windows/light";
+import FractalHaze from "../components/fractal-haze";
 
 export type WindowKey =
   | "flickr-gallery-window"
@@ -125,6 +126,57 @@ function Home() {
   // Get Flickr gallery state from atoms
   const { flickrError } = useFlickrGallery();
 
+  // Get fractal colors from atoms
+  const { colors: fractalColors, updateColors } = useFractalColors();
+
+  // Color map for each window
+  const windowColorMap: Record<
+    WindowKey,
+    { first: string; second: string; third: string }
+  > = {
+    "flickr-gallery-window": {
+      first: "#0000FF",
+      second: "#4169E1",
+      third: "#1E90FF",
+    },
+    "spotify-player-window": {
+      first: "#00E100",
+      second: "#1DB954",
+      third: "#1ED760",
+    },
+    "resume-window": { first: "#78909C", second: "#90A4AE", third: "#B0BEC5" },
+    "amazon-window": { first: "#FFA000", second: "#FF9800", third: "#FF8F00" },
+    "light-drawing-window": {
+      first: "#1976D2",
+      second: "#2196F3",
+      third: "#42A5F5",
+    },
+    "radiosity-window": {
+      first: "#607D8B",
+      second: "#78909C",
+      third: "#90A4AE",
+    },
+    "pantonify-window": {
+      first: "#4CAF50",
+      second: "#66BB6A",
+      third: "#81C784",
+    },
+    "light-window": { first: "#1976D2", second: "#2196F3", third: "#42A5F5" },
+  };
+
+  // Helper function to update colors based on window key
+  const updateFractalColorsForWindow = useCallback(
+    (windowKey: WindowKey) => {
+      const colors = windowColorMap[windowKey] || {
+        first: "#FF0080",
+        second: "#7928CA",
+        third: "#0070F3",
+      };
+      updateColors(colors);
+    },
+    [updateColors]
+  );
+
   // Use window animation hook for all windows
   const { windows, openWindow, closeWindow, updatePosition } =
     useWindowAnimations({
@@ -162,6 +214,27 @@ function Home() {
     openWindow,
     bringWindowToFront,
   });
+
+  // Update fractal colors when windows change (including URL changes)
+  useEffect(() => {
+    // Find the topmost open window (highest z-index)
+    const openWindows = Object.entries(windows)
+      .filter(([_, state]) => state.isOpen)
+      .map(([key, _]) => key as WindowKey);
+
+    if (openWindows.length > 0) {
+      // Sort by z-index to get the topmost window
+      const sortedWindows = openWindows.sort((a, b) => {
+        const zIndexA = zIndices[a] || 0;
+        const zIndexB = zIndices[b] || 0;
+        return zIndexB - zIndexA; // Descending order
+      });
+      const topmostWindow = sortedWindows[0];
+      if (topmostWindow) {
+        updateFractalColorsForWindow(topmostWindow);
+      }
+    }
+  }, [windows, zIndices, updateFractalColorsForWindow]);
 
   const openWindowByKey = (window: WindowKey) => {
     openWindow(window, buttonRef);
@@ -272,68 +345,71 @@ function Home() {
   );
 
   return (
-    <DndContext sensors={sensors} onDragEnd={handleWindowDragEnd}>
-      {/* Content overlay */}
-      <div
-        id="home-content"
-        className="w-full h-screen flex flex-col items-center justify-center relative"
-      >
-        <Nav
-          buttonRef={buttonRef}
-          openWindow={openWindowByKey}
-          isAllClosed={isAllClosed}
-        />
-        {/* Render gallery only when open */}
-        {flickrWindow.isOpen && (
-          <FlickrGallery
-            {...getWindowProps("flickr-gallery-window", flickrWindow)}
+    <FractalHaze backgroundNodeColors={fractalColors}>
+      <DndContext sensors={sensors} onDragEnd={handleWindowDragEnd}>
+        {/* Content overlay */}
+        <div
+          id="home-content"
+          className="w-full h-screen flex flex-col items-center justify-center relative"
+        >
+          <Nav
+            buttonRef={buttonRef}
+            openWindow={openWindowByKey}
+            isAllClosed={isAllClosed}
+            onNavItemClick={updateFractalColorsForWindow}
           />
-        )}
+          {/* Render gallery only when open */}
+          {flickrWindow.isOpen && (
+            <FlickrGallery
+              {...getWindowProps("flickr-gallery-window", flickrWindow)}
+            />
+          )}
 
-        {/* Render Spotify player */}
-        {spotifyWindow.isOpen && (
-          <SpotifyNowPlaying
-            {...getWindowProps("spotify-player-window", spotifyWindow)}
-            originPosition={spotifyWindow.originPosition || undefined}
-          />
-        )}
+          {/* Render Spotify player */}
+          {spotifyWindow.isOpen && (
+            <SpotifyNowPlaying
+              {...getWindowProps("spotify-player-window", spotifyWindow)}
+              originPosition={spotifyWindow.originPosition || undefined}
+            />
+          )}
 
-        {/* Display error alert if there's an error */}
-        {flickrError && (
-          <Alert title="Error loading photos" variant="error">
-            <p>{flickrError.message}</p>
-          </Alert>
-        )}
+          {/* Display error alert if there's an error */}
+          {flickrError && (
+            <Alert title="Error loading photos" variant="error">
+              <p>{flickrError.message}</p>
+            </Alert>
+          )}
 
-        {/* Render resume window */}
-        {resumeWindow.isOpen && (
-          <Resume {...getWindowProps("resume-window", resumeWindow)} />
-        )}
+          {/* Render resume window */}
+          {resumeWindow.isOpen && (
+            <Resume {...getWindowProps("resume-window", resumeWindow)} />
+          )}
 
-        {/* Render amazon window */}
-        {amazonWindow.isOpen && (
-          <AmazonWindow {...getWindowProps("amazon-window", amazonWindow)} />
-        )}
+          {/* Render amazon window */}
+          {amazonWindow.isOpen && (
+            <AmazonWindow {...getWindowProps("amazon-window", amazonWindow)} />
+          )}
 
-        {/* Render radiosity window */}
-        {radiosityWindow.isOpen && (
-          <RadiosityWindow
-            {...getWindowProps("radiosity-window", radiosityWindow)}
-          />
-        )}
+          {/* Render radiosity window */}
+          {radiosityWindow.isOpen && (
+            <RadiosityWindow
+              {...getWindowProps("radiosity-window", radiosityWindow)}
+            />
+          )}
 
-        {/* Render pantonify window */}
-        {pantonifyWindow.isOpen && (
-          <PantonifyWindow
-            {...getWindowProps("pantonify-window", pantonifyWindow)}
-          />
-        )}
-        {/* Render light window */}
-        {lightWindow.isOpen && (
-          <LightWindow {...getWindowProps("light-window", lightWindow)} />
-        )}
-      </div>
-    </DndContext>
+          {/* Render pantonify window */}
+          {pantonifyWindow.isOpen && (
+            <PantonifyWindow
+              {...getWindowProps("pantonify-window", pantonifyWindow)}
+            />
+          )}
+          {/* Render light window */}
+          {lightWindow.isOpen && (
+            <LightWindow {...getWindowProps("light-window", lightWindow)} />
+          )}
+        </div>
+      </DndContext>
+    </FractalHaze>
   );
 }
 

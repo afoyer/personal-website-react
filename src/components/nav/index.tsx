@@ -14,9 +14,15 @@ interface NavProps {
   buttonRef?: RefObject<HTMLButtonElement | null>;
   openWindow: (window: WindowKey) => void;
   isAllClosed: boolean;
+  onNavItemClick?: (window: WindowKey) => void;
 }
 
-export default function Nav({ buttonRef, isAllClosed, openWindow }: NavProps) {
+export default function Nav({
+  buttonRef,
+  isAllClosed,
+  openWindow,
+  onNavItemClick,
+}: NavProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [, toggleTheme] = useAtom(toggleThemeAtom);
 
@@ -33,25 +39,37 @@ export default function Nav({ buttonRef, isAllClosed, openWindow }: NavProps) {
     {
       id: "amazon",
       label: "Amazon",
-      onClick: () => openWindow("amazon-window"),
+      onClick: () => {
+        openWindow("amazon-window");
+        onNavItemClick?.("amazon-window");
+      },
       hoverBackgroundColor: `rgba(255, 160, 0, 0.6)`,
     },
     {
       id: "light-drawing",
       label: "Light Drawing",
-      onClick: () => openWindow("light-window"),
+      onClick: () => {
+        openWindow("light-window");
+        onNavItemClick?.("light-window");
+      },
       hoverBackgroundColor: `rgba(25, 118, 210, 0.6)`,
     },
     {
       id: "radiosity",
       label: "Radiosity",
-      onClick: () => openWindow("radiosity-window"),
+      onClick: () => {
+        openWindow("radiosity-window");
+        onNavItemClick?.("radiosity-window");
+      },
       hoverBackgroundColor: `rgba(96, 125, 139, 0.6)`,
     },
     {
       id: "pantonify",
       label: "Pantonify",
-      onClick: () => openWindow("pantonify-window"),
+      onClick: () => {
+        openWindow("pantonify-window");
+        onNavItemClick?.("pantonify-window");
+      },
       hoverBackgroundColor: `rgba(76, 175, 80, 0.6)`,
     },
   ];
@@ -117,7 +135,10 @@ export default function Nav({ buttonRef, isAllClosed, openWindow }: NavProps) {
       <div className="nav-container flex items-center gap-3 sm:gap-4 md:gap-5 justify-center max-w-2xs sm:max-w-xl mx-auto bg-black/30 backdrop-blur-sm rounded-4xl p-2 border border-white/10 pointer-events-auto center-x h-[50px]">
         <NavButton
           buttonRef={buttonRef}
-          onClick={() => openWindow("resume-window")}
+          onClick={() => {
+            openWindow("resume-window");
+            onNavItemClick?.("resume-window");
+          }}
           hoverBackgroundColor="rgba(120, 144, 156, 0.6)"
           popoverContent="Resume"
           popoverPosition="top"
@@ -126,7 +147,10 @@ export default function Nav({ buttonRef, isAllClosed, openWindow }: NavProps) {
         </NavButton>
         <NavButton
           buttonRef={buttonRef}
-          onClick={() => openWindow("spotify-player-window")}
+          onClick={() => {
+            openWindow("spotify-player-window");
+            onNavItemClick?.("spotify-player-window");
+          }}
           hoverBackgroundColor="rgba(0, 225, 0, 0.6)"
           popoverContent="Spotify"
           popoverPosition="top"
@@ -158,7 +182,10 @@ export default function Nav({ buttonRef, isAllClosed, openWindow }: NavProps) {
         </motion.svg>
         <NavButton
           buttonRef={buttonRef}
-          onClick={() => openWindow("flickr-gallery-window")}
+          onClick={() => {
+            openWindow("flickr-gallery-window");
+            onNavItemClick?.("flickr-gallery-window");
+          }}
           hoverBackgroundColor="rgba(0, 0, 255, 0.6)"
           popoverContent="Photo Gallery"
           popoverPosition="top"
