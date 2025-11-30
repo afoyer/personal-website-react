@@ -5,7 +5,7 @@ import DraggableWindow, {
 import { getUrl } from "aws-amplify/storage";
 import Spinner from "../../components/spinner";
 import { useState } from "react";
-import { CloudDownload, Download, DownloadIcon } from "lucide-react";
+import { DownloadIcon } from "lucide-react";
 
 function Resume(
   props: DraggableWindowProps & {

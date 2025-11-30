@@ -9,6 +9,14 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { fetchLightDrawingImages } from "../../utils/lightDrawingApi";
 import Spinner from "../../components/spinner";
 import { ArrowDown } from "lucide-react";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "../../components/carousel";
+import { data } from "react-router-dom";
 
 function LightWindow(
   props: DraggableWindowProps & {
@@ -154,14 +162,22 @@ function LightWindowContent() {
       </div>
       {images.length > 0 && (
         <div className="flex flex-col items-center justify-center gap-4">
-          {images.map((image) => (
-            <img
-              src={image.url}
-              alt={image.key}
-              height={200}
-              className={`sm:w-1/2 w-full`}
-            />
-          ))}
+          <Carousel className="w-full max-w-md pb-16">
+            <CarouselContent>
+              {images.map((image, index) => (
+                <CarouselItem key={index}>
+                  <img
+                    src={image.url}
+                    alt={image.key}
+                    height={200}
+                    className="w-full"
+                  />
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious />
+            <CarouselNext />
+          </Carousel>
         </div>
       )}
     </div>
