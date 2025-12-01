@@ -1,5 +1,5 @@
 import { motion, useMotionValue, useSpring } from "motion/react";
-import { FileText, Images, List, Music } from "lucide-react";
+import { Box, FileText, Images, List, Music } from "lucide-react";
 import { RefObject, useState } from "react";
 import { useAtom } from "jotai";
 import { toggleThemeAtom } from "../../jotai/atoms/appAtoms";
@@ -37,13 +37,13 @@ export default function Nav({
   // Projects menu items
   const projectItems: NavFanItem[] = [
     {
-      id: "amazon",
-      label: "Amazon",
+      id: "music",
+      label: <Music className="w-5 h-5" />,
       onClick: () => {
-        openWindow("amazon-window");
-        onNavItemClick?.("amazon-window");
+        openWindow("spotify-player-window");
+        onNavItemClick?.("spotify-player-window");
       },
-      hoverBackgroundColor: `rgba(255, 160, 0, 0.6)`,
+      hoverBackgroundColor: "rgba(0, 225, 0, 0.6)",
     },
     {
       id: "light-drawing",
@@ -148,14 +148,14 @@ export default function Nav({
         <NavButton
           buttonRef={buttonRef}
           onClick={() => {
-            openWindow("spotify-player-window");
-            onNavItemClick?.("spotify-player-window");
+            openWindow("amazon-window");
+            onNavItemClick?.("amazon-window");
           }}
-          hoverBackgroundColor="rgba(0, 225, 0, 0.6)"
-          popoverContent="Spotify"
+          hoverBackgroundColor={`rgba(255, 160, 0, 0.6)`}
+          popoverContent="Amazon"
           popoverPosition="top"
         >
-          <Music className="w-5 h-5" />
+          <Box className="w-5 h-5" />
         </NavButton>
         <motion.svg
           initial={{ opacity: 0, y: 10 }}

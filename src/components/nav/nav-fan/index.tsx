@@ -8,7 +8,7 @@ import { calculateArcMenuPosition, calculateFullScreenPosition } from "./utils";
 // Export types for external use
 export interface NavFanItem {
   id: string;
-  label: string;
+  label: React.ReactNode;
   icon?: ReactNode;
   onClick?: () => void;
   hoverBackgroundColor?: string;
