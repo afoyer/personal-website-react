@@ -15,7 +15,6 @@ function Resume(
   // Fetch resume from Amplify Storage using React Query
   // Assumes `Storage` from aws-amplify is available in the global import scope
   // and react-query's `useQuery` is available in global import scope.
-
   return (
     <DraggableWindow
       {...props}
@@ -73,19 +72,12 @@ function ResumeContent() {
           height="100%"
           onLoad={() => setIframeLoaded(true)}
           style={{
-            pointerEvents: "none", // Prevent iframe from capturing mouse events during resize/hover or resizing
             opacity: iframeLoaded ? 1 : 0,
             transition: "opacity 0.3s ease-in-out",
             border: "none",
             position: "absolute",
             top: 0,
             left: 0,
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.pointerEvents = "auto";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.pointerEvents = "none";
           }}
         />
         <a
