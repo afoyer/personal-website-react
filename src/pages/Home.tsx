@@ -135,42 +135,54 @@ function Home() {
     { first: string; second: string; third: string }
   > = {
     "flickr-gallery-window": {
-      first: "#0000FF",
-      second: "#4169E1",
-      third: "#1E90FF",
+      first: "rgba(0, 0, 255, 1)",
+      second: "rgba(65, 105, 225, 1)",
+      third: "rgba(30, 144, 255, 1)",
     },
     "spotify-player-window": {
-      first: "#00E100",
-      second: "#1DB954",
-      third: "#1ED760",
+      first: "rgba(0, 225, 0, 1)",
+      second: "rgba(29, 185, 84, 1)",
+      third: "rgba(30, 215, 96, 1)",
     },
-    "resume-window": { first: "#78909C", second: "#90A4AE", third: "#B0BEC5" },
-    "amazon-window": { first: "#FFA000", second: "#FF9800", third: "#FF8F00" },
+    "resume-window": {
+      first: "rgba(120, 144, 156, 1)",
+      second: "rgba(144, 164, 174, 1)",
+      third: "rgba(176, 190, 197, 1)",
+    },
+    "amazon-window": {
+      first: "rgba(255, 160, 0, 1)",
+      second: "rgba(255, 152, 0, 1)",
+      third: "rgba(255, 143, 0, 1)",
+    },
     "light-drawing-window": {
-      first: "#1976D2",
-      second: "#2196F3",
-      third: "#42A5F5",
+      first: "rgba(25, 118, 210, 1)",
+      second: "rgba(33, 150, 243, 1)",
+      third: "rgba(66, 165, 245, 1)",
     },
     "radiosity-window": {
-      first: "#607D8B",
-      second: "#78909C",
-      third: "#90A4AE",
+      first: "rgba(96, 125, 139, 1)",
+      second: "rgba(120, 144, 156, 1)",
+      third: "rgba(144, 164, 174, 1)",
     },
     "pantonify-window": {
-      first: "#4CAF50",
-      second: "#66BB6A",
-      third: "#81C784",
+      first: "rgba(76, 175, 80, 1)",
+      second: "rgba(102, 187, 106, 1)",
+      third: "rgba(129, 199, 132, 1)",
     },
-    "light-window": { first: "#1976D2", second: "#2196F3", third: "#42A5F5" },
+    "light-window": {
+      first: "rgba(25, 118, 210, 1)",
+      second: "rgba(33, 150, 243, 1)",
+      third: "rgba(66, 165, 245, 1)",
+    },
   };
 
   // Helper function to update colors based on window key
   const updateFractalColorsForWindow = useCallback(
     (windowKey: WindowKey) => {
       const colors = windowColorMap[windowKey] || {
-        first: "#FF0080",
-        second: "#7928CA",
-        third: "#0070F3",
+        first: "rgba(255, 0, 128, 1)",
+        second: "rgba(121, 40, 202, 1)",
+        third: "rgba(0, 112, 243, 1)",
       };
       updateColors(colors);
     },

@@ -5,9 +5,9 @@ import { useTheme } from "../../jotai/hooks";
 const FractalHaze = ({
   children,
   backgroundNodeColors = {
-    first: "#FF0080",
-    second: "#7928CA",
-    third: "#0070F3",
+    first: "rgba(255, 0, 128, 1)",
+    second: "rgba(121, 40, 202, 1)",
+    third: "rgba(0, 112, 243, 1)",
   },
 }: {
   children: React.ReactNode;
@@ -53,7 +53,6 @@ const FractalHaze = ({
         <motion.div
           style={{
             ...styles.blob,
-            background: backgroundNodeColors.first,
             top: "0%",
             left: "20%",
           }}
@@ -61,13 +60,18 @@ const FractalHaze = ({
             x: [0, 100, -50, 0],
             y: [0, -50, 50, 0],
             scale: [1, 1.2, 0.9, 1],
+            background: backgroundNodeColors.first,
           }}
-          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+          transition={{
+            x: { duration: 20, repeat: Infinity, ease: "linear" },
+            y: { duration: 20, repeat: Infinity, ease: "linear" },
+            scale: { duration: 20, repeat: Infinity, ease: "linear" },
+            background: { duration: 1.5, ease: "easeInOut" },
+          }}
         />
         <motion.div
           style={{
             ...styles.blob,
-            background: backgroundNodeColors.second,
             top: "20%",
             right: "20%",
           }}
@@ -75,13 +79,18 @@ const FractalHaze = ({
             x: [0, -70, 30, 0],
             y: [0, 80, -40, 0],
             scale: [1, 1.1, 0.8, 1],
+            background: backgroundNodeColors.second,
           }}
-          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+          transition={{
+            x: { duration: 25, repeat: Infinity, ease: "linear" },
+            y: { duration: 25, repeat: Infinity, ease: "linear" },
+            scale: { duration: 25, repeat: Infinity, ease: "linear" },
+            background: { duration: 1.5, ease: "easeInOut" },
+          }}
         />
         <motion.div
           style={{
             ...styles.blob,
-            background: backgroundNodeColors.third,
             bottom: "20%",
             left: "30%",
           }}
@@ -89,8 +98,14 @@ const FractalHaze = ({
             x: [0, 60, -30, 0],
             y: [0, -40, 20, 0],
             scale: [1, 1.3, 0.9, 1],
+            background: backgroundNodeColors.third,
           }}
-          transition={{ duration: 22, repeat: Infinity, ease: "linear" }}
+          transition={{
+            x: { duration: 22, repeat: Infinity, ease: "linear" },
+            y: { duration: 22, repeat: Infinity, ease: "linear" },
+            scale: { duration: 22, repeat: Infinity, ease: "linear" },
+            background: { duration: 1.5, ease: "easeInOut" },
+          }}
         />
       </div>
 
