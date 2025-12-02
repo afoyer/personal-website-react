@@ -15,7 +15,7 @@ import { useWindowUrlSync } from "../hooks/useWindowUrlSync";
 import FlickrGallery from "../windows/flickr-gallery";
 import Alert from "../components/alert";
 import Nav from "../components/nav";
-import SpotifyNowPlaying from "../components/spotify-window";
+import SpotifyPlayer from "../windows/spotify-player";
 import Resume from "../windows/resume";
 import { CONTAINER_PADDING } from "../App";
 import AmazonWindow from "../windows/amazon";
@@ -23,6 +23,8 @@ import PantonifyWindow from "../windows/pantonify";
 import RadiosityWindow from "../windows/radiosity";
 import LightWindow from "../windows/light";
 import FractalHaze from "../components/fractal-haze";
+import { RotateCcwSquare } from "lucide-react";
+import { motion } from "motion/react";
 
 export type WindowKey =
   | "flickr-gallery-window"
@@ -53,6 +55,23 @@ function Home() {
     width: typeof window !== "undefined" ? window.innerWidth : 1200,
     height: typeof window !== "undefined" ? window.innerHeight : 800,
   });
+
+  useEffect(() => {
+    const handleResize = () => {
+      setViewportDimensions({
+        width: window.innerWidth,
+        height: window.innerHeight - CONTAINER_PADDING * 2,
+      });
+    };
+
+    window.addEventListener("resize", handleResize);
+    window.addEventListener("orientationchange", handleResize); // Update dimensions on phone rotation
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("orientationchange", handleResize);
+    };
+  }, []);
 
   // Update dimensions on window resize
   useEffect(() => {
@@ -250,7 +269,14 @@ function Home() {
 
   const openWindowByKey = (window: WindowKey) => {
     openWindow(window, buttonRef);
+
     bringWindowToFront(window);
+    if (viewportDimensions.width < 1000) {
+      setWindowDimensions(window, {
+        width: viewportDimensions.width,
+        height: viewportDimensions.height,
+      });
+    }
   };
 
   const handleWindowFocus = useCallback(
@@ -355,7 +381,14 @@ function Home() {
     },
     [handleDragEnd, windows, updatePosition]
   );
-
+  if (viewportDimensions.width < 1000 && viewportDimensions.height < viewportDimensions.width) {
+    return <FractalHaze>
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.2, ease: "easeOut" }} className="flex flex-col justify-center items-center h-screen gap-4">
+        <p className="text-2xl">Please rotate your device to portrait mode</p>
+        <RotateCcwSquare />
+      </motion.div>
+    </FractalHaze>
+  }
   return (
     <FractalHaze backgroundNodeColors={fractalColors}>
       <DndContext sensors={sensors} onDragEnd={handleWindowDragEnd}>
@@ -379,7 +412,7 @@ function Home() {
 
           {/* Render Spotify player */}
           {spotifyWindow.isOpen && (
-            <SpotifyNowPlaying
+            <SpotifyPlayer
               {...getWindowProps("spotify-player-window", spotifyWindow)}
               originPosition={spotifyWindow.originPosition || undefined}
             />

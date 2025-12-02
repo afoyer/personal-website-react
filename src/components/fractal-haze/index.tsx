@@ -1,6 +1,62 @@
-import { motion } from "framer-motion";
+import { motion, useAnimation } from "framer-motion";
+import { useEffect } from "react";
 import { styles } from "./styles";
 import { useTheme } from "../../jotai/hooks";
+
+const AnimatedBlob = ({
+  initialPosition,
+  color,
+}: {
+  initialPosition: React.CSSProperties;
+  color: string;
+}) => {
+  const controls = useAnimation();
+
+  // Handle random movement
+  useEffect(() => {
+    const moveRandomly = async () => {
+      const randomX = Math.random() * 100 - 50; // -50% to 50%
+      const randomY = Math.random() * 100 - 50; // -50% to 50%
+      const randomScale = 0.8 + Math.random() * 0.4; // 0.8 to 1.2
+      const duration = 5 + Math.random() * 5; // 20s to 40s
+
+      await controls.start({
+        x: `${randomX}%`,
+        y: `${randomY}%`,
+        scale: randomScale,
+        transition: {
+          duration: duration,
+          ease: "easeInOut",
+        },
+      });
+
+      moveRandomly();
+    };
+
+    moveRandomly();
+  }, [controls]);
+
+  return (
+    <motion.div
+      style={{
+        ...styles.blob,
+        ...initialPosition,
+      }}
+      animate={controls}
+      whileHover={{ scale: 1.1 }}
+    >
+      <motion.div
+        style={{
+          width: "100%",
+          height: "100%",
+          borderRadius: "50%",
+        }}
+        animate={{ backgroundColor: color }}
+        transition={{ duration: 2, ease: "easeInOut" }}
+      />
+    </motion.div>
+  );
+};
 
 const FractalHaze = ({
   children,
@@ -50,62 +106,21 @@ const FractalHaze = ({
 
       {/* 2. Animated Background Blobs */}
       <div style={styles.background}>
-        <motion.div
-          style={{
-            ...styles.blob,
-            top: "0%",
-            left: "20%",
-          }}
-          animate={{
-            x: [0, 100, -50, 0],
-            y: [0, -50, 50, 0],
-            scale: [1, 1.2, 0.9, 1],
-            background: backgroundNodeColors.first,
-          }}
-          transition={{
-            x: { duration: 20, repeat: Infinity, ease: "linear" },
-            y: { duration: 20, repeat: Infinity, ease: "linear" },
-            scale: { duration: 20, repeat: Infinity, ease: "linear" },
-            background: { duration: 1.5, ease: "easeInOut" },
-          }}
+        <AnimatedBlob
+          initialPosition={{ top: "0%", left: "20%" }}
+          color={backgroundNodeColors.first}
         />
-        <motion.div
-          style={{
-            ...styles.blob,
-            top: "20%",
-            right: "20%",
-          }}
-          animate={{
-            x: [0, -70, 30, 0],
-            y: [0, 80, -40, 0],
-            scale: [1, 1.1, 0.8, 1],
-            background: backgroundNodeColors.second,
-          }}
-          transition={{
-            x: { duration: 25, repeat: Infinity, ease: "linear" },
-            y: { duration: 25, repeat: Infinity, ease: "linear" },
-            scale: { duration: 25, repeat: Infinity, ease: "linear" },
-            background: { duration: 1.5, ease: "easeInOut" },
-          }}
+        <AnimatedBlob
+          initialPosition={{ top: "20%", right: "20%" }}
+          color={backgroundNodeColors.second}
         />
-        <motion.div
-          style={{
-            ...styles.blob,
-            bottom: "20%",
-            left: "30%",
-          }}
-          animate={{
-            x: [0, 60, -30, 0],
-            y: [0, -40, 20, 0],
-            scale: [1, 1.3, 0.9, 1],
-            background: backgroundNodeColors.third,
-          }}
-          transition={{
-            x: { duration: 22, repeat: Infinity, ease: "linear" },
-            y: { duration: 22, repeat: Infinity, ease: "linear" },
-            scale: { duration: 22, repeat: Infinity, ease: "linear" },
-            background: { duration: 1.5, ease: "easeInOut" },
-          }}
+        <AnimatedBlob
+          initialPosition={{ bottom: "20%", left: "30%" }}
+          color={backgroundNodeColors.third}
+        />
+        <AnimatedBlob
+          initialPosition={{ bottom: "50%", left: "70%" }}
+          color={backgroundNodeColors.third}
         />
       </div>
 

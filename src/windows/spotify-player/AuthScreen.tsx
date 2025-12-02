@@ -1,4 +1,4 @@
-import Alert from "../alert";
+import Alert from "../../components/alert";
 
 interface AuthScreenProps {
   onConnect: () => void;

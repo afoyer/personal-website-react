@@ -1,12 +1,14 @@
 import { useState, useEffect, useRef } from "react";
-import DraggableWindow from "../draggable-window";
+import DraggableWindow from "../../components/draggable-window";
 import {
+  getSpotifyClientId,
   getSpotifyAuthUrl,
   exchangeAuthCode,
   isSpotifyAuthenticated,
   clearSpotifyTokens,
   setSpotifyToken,
 } from "../../utils/spotifyApi";
+import { useQuery } from "@tanstack/react-query";
 import TopTracks from "./TopTracks";
 import AuthScreen from "./AuthScreen";
 import { useAtom } from "jotai";
@@ -30,7 +32,6 @@ interface SpotifyPlayerProps {
 
 export default function SpotifyWindowContent({
   position = { x: 0, y: 0 },
-  clientId,
   redirectUri,
   zIndex,
   onFocus,
@@ -40,6 +41,17 @@ export default function SpotifyWindowContent({
   onDimensionChange: externalDimensionChange,
   onPositionChange,
 }: SpotifyPlayerProps) {
+  // Fetch Spotify Client ID
+  const {
+    data: spotifyClientId,
+    isLoading: isConfigLoading,
+    error: configError,
+  } = useQuery({
+    queryKey: ["spotify-client-id"],
+    queryFn: getSpotifyClientId,
+    retry: 2,
+  });
+
   // Get redirect URI from prop or default to current origin
   // IMPORTANT: This must EXACTLY match the redirect URI configured in your Spotify app
   // Go to: https://developer.spotify.com/dashboard -> Your App -> Edit Settings
@@ -52,12 +64,24 @@ export default function SpotifyWindowContent({
 
   // Log the redirect URI for debugging (helps verify it matches Spotify settings)
   useEffect(() => {
-    if (typeof window !== "undefined" && !redirectUri) {
+    if (typeof window !== "undefined") {
       console.log("Spotify redirect URI:", finalRedirectUri);
-      console.log(
-        "Make sure this EXACTLY matches your Spotify app settings at:"
-      );
-      console.log("https://developer.spotify.com/dashboard");
+      
+      // Check for insecure origin (http on non-localhost)
+      const isLocalhost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+      const isHttps = window.location.protocol === "https:";
+      
+      if (!isLocalhost && !isHttps) {
+        console.error("CRITICAL: Spotify requires HTTPS for non-localhost domains. Your redirect URI is insecure:", finalRedirectUri);
+        setError("Security Error: Spotify requires HTTPS for non-localhost domains. Please use localhost or enable HTTPS.");
+      }
+
+      if (!redirectUri) {
+        console.log(
+          "Make sure this EXACTLY matches your Spotify app settings at:"
+        );
+        console.log("https://developer.spotify.com/dashboard");
+      }
     }
   }, [finalRedirectUri, redirectUri]);
   const [authenticated, setAuthenticated] = useState(false);
@@ -208,7 +232,7 @@ export default function SpotifyWindowContent({
   }, [popupRef.current]);
 
   const handleConnect = () => {
-    if (!clientId || clientId.trim() === "") {
+    if (!spotifyClientId || typeof spotifyClientId !== "string" || spotifyClientId.trim() === "") {
       setError(
         "Spotify Client ID not configured. Please check your backend configuration."
       );
@@ -221,7 +245,7 @@ export default function SpotifyWindowContent({
         "Initiating Spotify auth with redirect URI:",
         finalRedirectUri
       );
-      const authUrl = getSpotifyAuthUrl(finalRedirectUri, clientId);
+      const authUrl = getSpotifyAuthUrl(finalRedirectUri, spotifyClientId);
       setError(null);
       setLoading(true);
 
@@ -254,6 +278,56 @@ export default function SpotifyWindowContent({
       setLoading(false);
     }
   };
+
+  if (isConfigLoading) {
+    return null;
+  }
+
+  if (configError) {
+    return (
+      <DraggableWindow
+        id="spotify-player-window"
+        title="Spotify Player"
+        position={position}
+        width={windowWidth}
+        height={windowHeight}
+        zIndex={zIndex}
+        onFocus={onFocus}
+        onClose={handleClose}
+        initial={{ opacity: 0, scale: originPosition ? 0 : 1 }}
+      >
+        <div className="p-4">
+          <div className="bg-red-100 text-red-700 p-4 rounded">
+            <p className="font-bold">Configuration Error</p>
+            <p>{configError instanceof Error ? configError.message : "Failed to load Spotify configuration"}</p>
+          </div>
+        </div>
+      </DraggableWindow>
+    );
+  }
+
+  if (!spotifyClientId || typeof spotifyClientId !== "string" || spotifyClientId.trim() === "") {
+     return (
+      <DraggableWindow
+        id="spotify-player-window"
+        title="Spotify Player"
+        position={position}
+        width={windowWidth}
+        height={windowHeight}
+        zIndex={zIndex}
+        onFocus={onFocus}
+        onClose={handleClose}
+        initial={{ opacity: 0, scale: originPosition ? 0 : 1 }}
+      >
+        <div className="p-4">
+          <div className="bg-red-100 text-red-700 p-4 rounded">
+            <p className="font-bold">Configuration Error</p>
+            <p>Invalid Spotify Client ID received from backend.</p>
+          </div>
+        </div>
+      </DraggableWindow>
+    );
+  }
 
   return (
     <DraggableWindow
