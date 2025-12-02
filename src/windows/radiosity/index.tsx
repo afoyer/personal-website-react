@@ -4,6 +4,9 @@ import DraggableWindow, {
 } from "../../components/draggable-window";
 import ImageFetcher from "../../components/image-fetcher";
 import Spinner from "../../components/spinner";
+import { motion } from "motion/react";
+import { Code } from "lucide-react";
+import { Popover } from "@/components/popover";
 
 function RadiosityWindow(
   props: DraggableWindowProps & {
@@ -37,11 +40,13 @@ function RadiosityWindowContent() {
       <h3 className="superscore-vf text-xs text-gray-300 dark:text-gray-200">
         Aymeric Foyer and Kon Aoki
       </h3>
-      <div className="container flex flex-col items-center justify-center gap-4">
-        <h2 className="superscore-vf text-xl pt-4">Introduction</h2>
-        <div className="flex flex-col justify-center gap-4 px-0 ">
-          <p className="futura-regular text-sm">
-            My partner and I were trying to brainstorm what a good project for
+      <div className="container flex flex-col items-center gap-4 max-w-[600px]">
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2, ease: "easeInOut" }} className="w-full">
+          <h2 className="superscore-vf text-xl pt-4">Introduction</h2>
+        </motion.div>
+        <div className="flex flex-col justify-center gap-4 px-0 futura-regular">
+          <p className="text-sm">
+            My teammate and I were trying to brainstorm what a good project for
             our computer graphics course would be until we both stumbled on{" "}
             <a
               className="linkhover"
@@ -53,7 +58,7 @@ function RadiosityWindowContent() {
             </a>
             . So we had to try this out and figure out how to build it.
           </p>
-          <p className="futura-regular text-sm pt-4">
+          <p className="text-sm pt-4">
             The{" "}
             <a
               className="text-blue-500 hover:text-blue-600"
@@ -66,6 +71,20 @@ function RadiosityWindowContent() {
             makes everything faster pace, which means we had 5 days from coming
             up with this project to finishing this project.
           </p>
+        </div>
+      </div>
+      <div className="container flex flex-col items-center gap-4 max-w-[600px]">
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2, ease: "easeInOut" }} className="w-full">
+          <h2 className="superscore-vf text-xl pt-4">Rendering</h2>
+        </motion.div>
+        <div className="flex flex-col justify-center gap-4 px-0 futura-regular">
+          <p className="text-sm">
+            Each point on the scene can emit its own light, which is initially fed from the light source. As each generation is rendered
+            ,the light is recalculated based on the light emitted by every previous point and how they affect other points in the scene, but with a {" "}
+            <Popover trigger="click" content={<p>The ratio of energy (in this case, light) emitted by a point to how much light it currently contains</p>}>flux value</Popover> to diminish
+            the amount of light emitted by each point.
+          </p>
+
         </div>
       </div>
       <Suspense fallback={<Spinner />}>
@@ -94,17 +113,32 @@ function RadiosityWindowContent() {
             whileHover={{ scale: 1.05 }}
           />
         </div>
-
-        <iframe
-          className="w-full h-full min-h-[315px] max-w-3xl"
-          src="https://www.youtube-nocookie.com/embed/HUUy67lb5YA?si=MDOeI5VCiuOW2a2C"
-          title="YouTube video player"
-          frameBorder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          referrerPolicy="strict-origin-when-cross-origin"
-          allowFullScreen
-        />
       </Suspense>
+
+      <h2 className="superscore-vf text-xl pt-4">Video Demo</h2>
+      <iframe
+        className="w-full h-full min-h-[315px] max-w-3xl"
+        src="https://www.youtube-nocookie.com/embed/HUUy67lb5YA?si=MDOeI5VCiuOW2a2C"
+        title="YouTube video player"
+        frameBorder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        referrerPolicy="strict-origin-when-cross-origin"
+        allowFullScreen
+      />
+      <div className="flex flex-col justify-center gap-4 px-0 futura-regular max-w-[600px]">
+        <p className="text-sm pt-4">
+          We learned a lot from this project. We learned how to implement
+          global illumination and how to use it to create a realistic image,
+          all while keeping our single threaded application running fast. This was at a cost though,
+          as pre-rendering this scene would take a significant amount of time, depending on
+          how many generation steps we wanted to take.
+        </p>
+      </div>
+      <div className="flex flex-col justify-center gap-4 px-0 futura-regular max-w-[600px]">
+        <motion.a whileHover={{ scale: 1.1 }} href="https://github.com/afoyer/GlobalIllumination-Radiosity" target="_blank" rel="noopener noreferrer">
+          <Code className="w-6 h-6" />
+        </motion.a>
+      </div>
     </div>
   );
 }
