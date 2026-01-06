@@ -16,7 +16,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "../../components/carousel";
-import { data } from "react-router-dom";
+import ImageFetcher from "@/components/image-fetcher";
 
 function LightWindow(
   props: DraggableWindowProps & {
@@ -129,36 +129,83 @@ function LightWindowContent() {
         {/* Add your additional content here */}
         <div className="flex flex-col justify-center items-center w-full h-full mt-32">
           <motion.p
-            className="text-white text-2xl pb-32"
+            className="text-white text-2xl pb-32 tracking-[0.5em]"
             whileInView={{ opacity: 1 }}
             initial={{ opacity: 0 }}
             transition={{ duration: 0.2, ease: "easeInOut", delay: 0.5 }}
           >
-            A presence of light
-          </motion.p>
-          <motion.p
-            className="text-white text-2xl"
-            whileInView={{ opacity: 1 }}
-            initial={{ opacity: 0 }}
-            transition={{ duration: 0.2, ease: "easeInOut", delay: 0.8 }}
-          >
-            A moment in time
+            A PRESENCE OF LIGHT
           </motion.p>
         </div>
         <div className="flex flex-col p-8 items-center w-full h-full">
           <p className="text-white text-2xl pb-8">
-            This photography project was inspired by Reuben Wu's light painting
-            through the use of drones. While his capture nature in a grand sense
-            and the presence of technology within them, I tried to scale the
-            project down to reflect the idea of presence as an ephemeral state.
+            The initial goal of this project was to explore how light can be a
+            real presence within our world, as well as being a physical and
+            mathematical constant.
           </p>
           <p className="text-white text-2xl">
-            Many of these images capture a simple shape within the urban spaces
-            of Saint Louis, Missouri. The addition of water was important to
-            truly ground these drawings as physical objects that exist in the
-            world rather than appended to the space.
+            By exploring the interactions of light through reflections, this
+            thought led to experimentation through long exposures to reveal
+            light trails and its effects on the environment using reflections
+            and highlights.
           </p>
         </div>
+      </div>
+      <div className="flex flex-col justify-center items-center w-full h-full">
+        <motion.p
+          className="text-white text-2xl pb-8 tracking-[0.5em]"
+          whileInView={{ opacity: 1 }}
+          initial={{ opacity: 0 }}
+          transition={{ duration: 0.2, ease: "easeInOut", delay: 0.5 }}
+        >
+          PROCESS
+        </motion.p>
+      </div>
+      <div className="flex flex-row justify-center items-center w-full h-full gap-4 p-8 flex-wrap">
+        <div className="flex flex-col gap-4 grow shrink basis-[200px]">
+          <p>
+            LED strips, power banks, and tripods were set up to frame shots over
+            twilight to show a sense of setting mood while making the creations
+            rise from the setting light.
+          </p>
+          <p>
+            Thirty second exposures would be created to ensure the vanishing
+            human presence within each frame, allowing for the shapes to fully
+            take presence.
+          </p>
+        </div>
+        <div className="w-full max-w-md pb-16 grow shrink basis-[200px]">
+          <ImageFetcher
+            suspense
+            folder="light-drawing/materials"
+            fileName="test-pic.jpg"
+            className="w-full max-w-md"
+            description="Test picture of the light drawing process."
+          />
+        </div>
+      </div>
+      <div className="flex flex-col justify-center items-center w-full h-full">
+        <motion.p
+          className="text-white text-2xl pb-8 tracking-[0.5em]"
+          whileInView={{ opacity: 1 }}
+          initial={{ opacity: 0 }}
+          transition={{ duration: 0.2, ease: "easeInOut", delay: 0.5 }}
+        >
+          RESULT
+        </motion.p>
+      </div>
+      <div className="w-full pb-16 flex flex-col justify-center items-center">
+        <ImageFetcher
+          folder="light-drawing/materials"
+          fileName="prints.jpg"
+          className="w-full max-w-md"
+          suspense
+          description="Prints of the light drawing process."
+        />
+        <p className="text-white p-8">
+          Ten prints 16x20 prints were created to show the process of the light
+          drawing in various sections of Saint Louis, Missouri.
+        </p>
       </div>
       {images.length > 0 && (
         <div className="flex flex-col items-center justify-center gap-4">
